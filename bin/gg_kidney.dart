@@ -19,7 +19,7 @@ Future<void> runGgKidney({
     final CommandRunner<void> runner = CommandRunner<void>(
       'GgKidney',
       'GgKidney performs maintenance tasks on our various repositories. ',
-    )..addCommand(GgKidneyCmd(log: log));
+    )..addCommand(GgKidney(log: log));
 
     // Run the command
     await runner.run(args);

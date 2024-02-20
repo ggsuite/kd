@@ -11,12 +11,11 @@ Future<void> main() async {
   const param = 'foo';
 
   final ggKidney = GgKidney(
-    param: param,
     log: (msg) {},
   );
 
   print('Executing with param $param');
-  await ggKidney.exec();
+  await ggKidney.run();
 
   print('Done.');
 }
