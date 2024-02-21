@@ -17,10 +17,15 @@ void main() {
       final repos = createSampleRepos();
       final tmp = repos[0].parent;
       final messages = <String>[];
-      processPubSpecs(
+      processProject(
         directory: tmp,
-        process: (yaml, tmp) =>
-            yaml..update(['dependencies', 'args'], '^4.5.6'),
+        process: ({
+          required dir,
+          required dryRun,
+          required log,
+          required pubspec,
+        }) =>
+            pubspec..update(['dependencies', 'args'], '^4.5.6'),
         log: messages.add,
       );
 
@@ -34,9 +39,15 @@ void main() {
     test('should log a message if no dart repositories are found', () {
       final tmp = Directory.systemTemp.createTempSync();
       final messages = <String>[];
-      processPubSpecs(
+      processProject(
         directory: tmp,
-        process: (yaml, tmp) => yaml,
+        process: ({
+          required dir,
+          required dryRun,
+          required log,
+          required pubspec,
+        }) =>
+            pubspec,
         log: messages.add,
       );
       expect(messages.first, contains('No dart repositories found in '));

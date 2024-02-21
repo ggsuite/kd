@@ -11,12 +11,17 @@ import 'package:path/path.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
 /// A function that processes a pubspec.yaml file.
-typedef PubSpecProcessor = YamlEditor Function(YamlEditor yaml, Directory dir);
+typedef ProjectProcessor = YamlEditor Function({
+  required YamlEditor pubspec,
+  required Directory dir,
+  required bool dryRun,
+  required void Function(String)? log,
+});
 
 /// Processes all pubspec.yaml files in the given directory.
-void processPubSpecs({
+void processProject({
   required Directory directory,
-  required PubSpecProcessor process,
+  required ProjectProcessor process,
   bool dryRun = false,
   void Function(String)? log,
 }) {
@@ -29,8 +34,13 @@ void processPubSpecs({
 
   for (final dir in dartRepos) {
     final file = File('${dir.path}/pubspec.yaml');
-    final content = YamlEditor(file.readAsStringSync());
-    final newContent = process(content, dir);
+    final pubspec = YamlEditor(file.readAsStringSync());
+    final newContent = process(
+      pubspec: pubspec,
+      dir: dir,
+      log: log,
+      dryRun: dryRun,
+    );
     if (!dryRun) {
       file.writeAsStringSync(newContent.toString());
     }

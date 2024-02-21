@@ -5,7 +5,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:args/command_runner.dart';
-import 'package:gg_kidney/src/commands/gg_update_dart_sdk.dart';
+import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
 
 /// The command line interface for GgKidney
 class GgKidney extends Command<dynamic> {

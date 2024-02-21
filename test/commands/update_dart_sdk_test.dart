@@ -7,7 +7,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:gg_kidney/src/commands/gg_update_dart_sdk.dart';
+import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
 import 'package:test/test.dart';
 
 import '../tools/create_sample_folders.dart';

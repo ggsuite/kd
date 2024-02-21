@@ -64,12 +64,19 @@ class UpdateDartSdk extends Command<dynamic> {
     log('Updating the Dart SDK to version $version in $inputDir');
 
     // Iterate through all dart repositories found in the current directly
-    processPubSpecs(
+    processProject(
       directory: Directory(inputDir),
-      process: (doc, dir) => _updateDartSdk(
-        doc,
+      process: ({
+        required dir,
+        required dryRun,
+        required log,
+        required pubspec,
+      }) =>
+          _updateDartSdk(
+        pubspec,
         dir,
         version,
+        dryRun,
       ),
       dryRun: dryRun,
       log: log,
@@ -77,7 +84,12 @@ class UpdateDartSdk extends Command<dynamic> {
   }
 
   // ...........................................................................
-  YamlEditor _updateDartSdk(YamlEditor doc, Directory dir, Version version) {
+  YamlEditor _updateDartSdk(
+    YamlEditor doc,
+    Directory dir,
+    Version version,
+    dryRun,
+  ) {
     // Compose the version string
     final majorVersion = version.major;
     final versionString = '>=$version<${majorVersion + 1}.0.0';
