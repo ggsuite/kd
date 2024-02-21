@@ -46,12 +46,12 @@ class UpdateDartSdk extends CommandBase {
 
   // ...........................................................................
   @override
-  YamlEditor processProject({
+  Future<void> processProject({
     required YamlEditor pubspec,
     required Directory dir,
     required bool dryRun,
     void Function(String p1)? log,
-  }) {
+  }) async {
     // Compose the version string
     final majorVersion = _version.major;
     final versionString = '>=$_version<${majorVersion + 1}.0.0';
@@ -63,6 +63,9 @@ class UpdateDartSdk extends CommandBase {
     final dirName = basename(dir.absolute.path.replaceAll(RegExp(r'/.$'), ''));
     log?.call('Updated the Dart SDK version to "$versionString" in $dirName');
 
-    return pubspec;
+    if (!dryRun) {
+      final file = File('${dir.path}/pubspec.yaml');
+      file.writeAsStringSync(pubspec.toString());
+    }
   }
 }

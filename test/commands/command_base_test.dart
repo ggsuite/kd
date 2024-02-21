@@ -36,12 +36,12 @@ class MyCommand extends CommandBase {
   List<(YamlEditor, Directory, bool, dynamic)> processedProjects = [];
 
   @override
-  YamlEditor processProject({
+  Future<void> processProject({
     required YamlEditor pubspec,
     required Directory dir,
     required bool dryRun,
     void Function(String p1)? log,
-  }) {
+  }) async {
     processedProjects.add((pubspec, dir, dryRun, log));
     super.processProject(
       pubspec: pubspec,
@@ -49,7 +49,6 @@ class MyCommand extends CommandBase {
       dryRun: dryRun,
       log: log,
     );
-    return pubspec;
   }
 
   // ...........................................................................

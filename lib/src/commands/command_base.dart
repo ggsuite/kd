@@ -55,13 +55,13 @@ abstract class CommandBase extends Command<dynamic> {
 
   // ...........................................................................
   /// Override this method to process a project.
-  YamlEditor processProject({
+  Future<void> processProject({
     required YamlEditor pubspec,
     required Directory dir,
     required bool dryRun,
     void Function(String)? log,
   }) =>
-      pubspec;
+      Future.value();
 
   // ...........................................................................
   /// Override this method to do some work after the run method is called.
@@ -78,7 +78,7 @@ abstract class CommandBase extends Command<dynamic> {
     willStart(inputDir: inputDir);
 
     // Iterate through all dart repositories found in the current directly
-    pp.processProjects(
+    await pp.processProjects(
       directory: Directory(inputDir),
       process: processProject,
       dryRun: dryRun,

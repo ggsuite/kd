@@ -13,19 +13,22 @@ import 'create_sample_repos.dart';
 
 void main() {
   group('processProject(root, processor)', () {
-    test('should process all pubspec files in a given directory', () {
+    test('should process all pubspec files in a given directory', () async {
       final repos = createSampleRepos();
       final tmp = repos[0].parent;
       final messages = <String>[];
-      processProjects(
+      await processProjects(
         directory: tmp,
         process: ({
           required dir,
           required dryRun,
           required log,
           required pubspec,
-        }) =>
-            pubspec..update(['dependencies', 'args'], '^4.5.6'),
+        }) async {
+          pubspec.update(['dependencies', 'args'], '^4.5.6');
+          final file = File('${dir.path}/pubspec.yaml');
+          await file.writeAsString(pubspec.toString());
+        },
         log: messages.add,
       );
 
@@ -36,18 +39,17 @@ void main() {
       }
     });
 
-    test('should log a message if no dart repositories are found', () {
+    test('should log a message if no dart repositories are found', () async {
       final tmp = Directory.systemTemp.createTempSync();
       final messages = <String>[];
-      processProjects(
+      await processProjects(
         directory: tmp,
         process: ({
           required dir,
           required dryRun,
           required log,
           required pubspec,
-        }) =>
-            pubspec,
+        }) async {},
         log: messages.add,
       );
       expect(messages.first, contains('No dart repositories found in '));
