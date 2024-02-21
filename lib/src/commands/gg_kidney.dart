@@ -6,12 +6,14 @@
 
 import 'package:args/command_runner.dart';
 import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
+import 'package:gg_kidney/src/commands/upgrade_dependencies.dart';
 
 /// The command line interface for GgKidney
 class GgKidney extends Command<dynamic> {
   /// Constructor
   GgKidney({required this.log}) {
     addSubcommand(UpdateDartSdk(log: log));
+    addSubcommand(UpgradeDependencies(log: log));
   }
 
   /// The log function

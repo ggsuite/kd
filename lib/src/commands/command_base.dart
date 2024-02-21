@@ -44,6 +44,7 @@ abstract class CommandBase extends Command<dynamic> {
       abbr: 'd',
       help: 'Do not change any files',
       defaultsTo: false,
+      negatable: true,
     );
   }
 
