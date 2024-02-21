@@ -19,7 +19,7 @@ typedef ProjectProcessor = YamlEditor Function({
 });
 
 /// Processes all pubspec.yaml files in the given directory.
-void processProject({
+void processProjects({
   required Directory directory,
   required ProjectProcessor process,
   bool dryRun = false,

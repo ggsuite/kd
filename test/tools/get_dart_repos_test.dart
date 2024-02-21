@@ -9,7 +9,7 @@ import 'dart:io';
 import 'package:gg_kidney/src/tools/get_dart_repos.dart';
 import 'package:test/test.dart';
 
-import 'create_sample_folders.dart';
+import 'create_sample_repos.dart';
 
 void main() {
   late Directory tmp;

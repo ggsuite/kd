@@ -6,18 +6,18 @@
 
 import 'dart:io';
 
-import 'package:gg_kidney/src/tools/process_pubspecs.dart';
+import 'package:gg_kidney/src/tools/process_projects.dart';
 import 'package:test/test.dart';
 
-import 'create_sample_folders.dart';
+import 'create_sample_repos.dart';
 
 void main() {
-  group('processPubSpecs(root, processor)', () {
+  group('processProject(root, processor)', () {
     test('should process all pubspec files in a given directory', () {
       final repos = createSampleRepos();
       final tmp = repos[0].parent;
       final messages = <String>[];
-      processProject(
+      processProjects(
         directory: tmp,
         process: ({
           required dir,
@@ -39,7 +39,7 @@ void main() {
     test('should log a message if no dart repositories are found', () {
       final tmp = Directory.systemTemp.createTempSync();
       final messages = <String>[];
-      processProject(
+      processProjects(
         directory: tmp,
         process: ({
           required dir,
