@@ -50,7 +50,7 @@ class UpgradeDependencies extends CommandBase {
     // Execute dart pub upgrade
     final result = await processRun(
       'dart',
-      ['pub', 'upgrade', if (dryRun) '--dry-run'],
+      ['pub', 'upgrade', '--major-versions', if (dryRun) '--dry-run'],
       workingDirectory: dir.path,
     );
 

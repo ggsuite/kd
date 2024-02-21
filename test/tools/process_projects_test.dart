@@ -9,7 +9,7 @@ import 'dart:io';
 import 'package:gg_kidney/src/tools/process_projects.dart';
 import 'package:test/test.dart';
 
-import 'create_sample_repos.dart';
+import '../test_helpers/create_sample_repos.dart';
 
 void main() {
   group('processProject(root, processor)', () {

@@ -11,7 +11,7 @@ import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:test/test.dart';
 import 'package:yaml_edit/src/editor.dart';
 
-import '../tools/create_sample_repos.dart';
+import '../test_helpers/create_sample_repos.dart';
 
 // #############################################################################
 class MyCommand extends CommandBase {

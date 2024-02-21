@@ -10,7 +10,7 @@ import 'package:args/command_runner.dart';
 import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
 import 'package:test/test.dart';
 
-import '../tools/create_sample_repos.dart';
+import '../test_helpers/create_sample_repos.dart';
 
 void main() {
   late Directory tmp;
