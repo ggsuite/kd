@@ -15,7 +15,7 @@ class GgKidney extends Command<dynamic> {
   GgKidney({required this.log}) {
     addSubcommand(UpdateDartSdk(log: log));
     addSubcommand(UpgradeDependencies(log: log));
-    addSubcommand(OpenWithVsCode(log: log));
+    addSubcommand(OpenWithVscode(log: log));
   }
 
   /// The log function

@@ -15,7 +15,7 @@ void main() {
   // ...........................................................................
   setUp(() {
     resetEnvironment(
-      OpenWithVsCode(
+      OpenWithVscode(
         log: logMessages.add,
         processRun: processRun,
       ),
@@ -30,7 +30,7 @@ void main() {
       final root = sampleRepos[0].parent.absolute.path;
 
       // Run the command
-      runner.run(['vscode', '-i', root, '--file', 'pubspec.yaml']);
+      runner.run(['open-with-vscode', '-i', root, '--file', 'pubspec.yaml']);
 
       // Onle one call should be executed
       expect(calls.length, 1);
@@ -39,7 +39,7 @@ void main() {
       // The working directory should be the root
       expect(call.workingDirectory, root);
 
-      // The executable should be vscode
+      // The executable should be open-with-vscode
       expect(call.executable, 'code');
 
       // The arguments should be the pubspec.yaml files in the repos
@@ -55,7 +55,7 @@ void main() {
       final root = sampleRepos[0].parent.absolute.path;
 
       // Run the command
-      runner.run(['vscode', '-i', root, '--file', 'xyzabc']);
+      runner.run(['open-with-vscode', '-i', root, '--file', 'xyzabc']);
 
       // Nothing should be called
       expect(calls.length, 0);

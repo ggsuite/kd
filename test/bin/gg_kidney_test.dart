@@ -23,7 +23,7 @@ void main() {
           await runGgKidney(args: args, log: messages.add);
           expectLog('update-dart-sdk', messages);
           expectLog('upgrade-dependencies', messages);
-          expectLog('vscode', messages);
+          expectLog('open-with-vscode', messages);
         },
       );
     });

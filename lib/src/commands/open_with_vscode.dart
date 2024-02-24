@@ -13,13 +13,13 @@ import 'package:path/path.dart';
 
 // #############################################################################
 /// Works through all repositories and updates the Dart SDK.
-class OpenWithVsCode extends CommandBase {
+class OpenWithVscode extends CommandBase {
   /// Constructor
-  OpenWithVsCode({
+  OpenWithVscode({
     required super.log,
     this.processRun = Process.run,
   }) : super(
-          name: 'vscode',
+          name: 'open-with-vscode',
           description: 'Edit project files with vscode.',
         ) {
     _addArgs();
