@@ -15,15 +15,24 @@ Future<void> runGgKidney({
   required void Function(String msg) log,
 }) async {
   try {
+    // Create command
+    final ggKidney = GgKidney(log: log);
+
     // Create a command runner
     final CommandRunner<void> runner = CommandRunner<void>(
-      'GgKidney',
-      'GgKidney performs maintenance tasks on our various repositories. ',
+      'ggKidney',
+      ggKidney.description,
     );
 
-    final ggKidney = GgKidney(log: log);
-    for (final subCommand in ggKidney.subcommands.values) {
-      runner.addCommand(subCommand);
+    // If no subcommands are defined, add the main command
+    if (ggKidney.subcommands.isEmpty) {
+      runner.addCommand(ggKidney);
+    }
+    // Otherwise, add the subcommands
+    else {
+      for (final subCommand in ggKidney.subcommands.values) {
+        runner.addCommand(subCommand);
+      }
     }
 
     // Run the command

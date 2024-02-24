@@ -7,10 +7,10 @@
 import 'dart:io';
 
 import 'package:gg_kidney/src/commands/upgrade_dependencies.dart';
+import 'package:gg_test_helpers/gg_test_helpers.dart';
 import 'package:path/path.dart';
 import 'package:test/test.dart';
 
-import '../test_helpers/expect_log.dart';
 import '../test_helpers/init_environment.dart';
 
 void main() {
@@ -97,19 +97,28 @@ void main() {
       // For each failed command, a log message should be written
       for (int i = 0; i < calls.length; i++) {
         final dir = basename(calls[i].workingDirectory!);
-        expectLog(
-          'Failed to upgrade dependencies for $dir',
-          logMessages,
+        expect(
+          hasLog(
+            'Failed to upgrade dependencies for $dir',
+            logMessages,
+          ),
+          isTrue,
         );
 
-        expectLog(
-          'stderror',
-          logMessages,
+        expect(
+          hasLog(
+            'stderror',
+            logMessages,
+          ),
+          isTrue,
         );
 
-        expectLog(
-          'stdout',
-          logMessages,
+        expect(
+          hasLog(
+            'stdout',
+            logMessages,
+          ),
+          isTrue,
         );
       }
 

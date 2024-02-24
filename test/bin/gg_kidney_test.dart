@@ -4,11 +4,10 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'package:gg_test_helpers/gg_test_helpers.dart';
 import 'package:test/test.dart';
 
 import '../../bin/gg_kidney.dart';
-import '../test_helpers/capture_print.dart';
-import '../test_helpers/expect_log.dart';
 
 void main() {
   group('runGgKidney(args, log)', () {
@@ -21,9 +20,9 @@ void main() {
         code: () async {
           final args = <String>['--help'];
           await runGgKidney(args: args, log: messages.add);
-          expectLog('update-dart-sdk', messages);
-          expectLog('upgrade-dependencies', messages);
-          expectLog('open-with-vscode', messages);
+          expect(hasLog('update-dart-sdk', messages), isTrue);
+          expect(hasLog('upgrade-dependencies', messages), isTrue);
+          expect(hasLog('open-with-vscode', messages), isTrue);
         },
       );
     });
