@@ -8,9 +8,9 @@ import 'dart:io';
 
 import 'package:colorize/colorize.dart';
 import 'package:gg_kidney/src/commands/command_base.dart';
-import 'package:gg_kidney/src/tools/process_run.dart';
 import 'package:path/path.dart';
 import 'package:yaml_edit/yaml_edit.dart';
+import 'package:gg_test_helpers/gg_test_helpers.dart';
 
 // #############################################################################
 /// Works through all repositories and updates the Dart SDK.
@@ -18,7 +18,7 @@ class UpgradeDependencies extends CommandBase {
   /// Constructor
   UpgradeDependencies({
     required super.log,
-    this.processRun = Process.run,
+    this.runProcess = Process.run,
   }) : super(
           name: 'upgrade-dependencies',
           description: 'Upgrades package dependencies.',
@@ -32,8 +32,8 @@ class UpgradeDependencies extends CommandBase {
   }
 
   // ...........................................................................
-  /// The method
-  final ProcessRun processRun;
+  /// This method is used to run processes
+  final RunProcess runProcess;
 
   // ...........................................................................
   @override
@@ -48,7 +48,7 @@ class UpgradeDependencies extends CommandBase {
     log?.call('Upgraded package dependencies of $dirName');
 
     // Execute dart pub upgrade
-    final result = await processRun(
+    final result = await runProcess(
       'dart',
       ['pub', 'upgrade', '--major-versions', if (dryRun) '--dry-run'],
       workingDirectory: dir.path,

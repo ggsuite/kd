@@ -16,34 +16,39 @@ import '../test_helpers/init_environment.dart';
 void main() {
   // ###########################################################################
 
+  late TestEnvironment env;
+
+  // ...........................................................................
   setUp(() {
-    resetEnvironment(
+    env = TestEnvironment();
+
+    env.addCommand(
       UpgradeDependencies(
-        log: logMessages.add,
-        processRun: processRun,
+        log: env.logMessages.add,
+        runProcess: env.process.run,
       ),
     );
-    logMessages.clear();
   });
 
   // ###########################################################################
   group('UpgradeDependencies', () {
     test('should add --dry-run when dryRun is true', () async {
       // Run the command
-      await runner.run([
+      await env.runner.run([
         'upgrade-dependencies',
         '--dry-run',
         '--input-dir',
-        root,
+        env.root,
       ]);
 
       // Check the result
+      final calls = env.process.calls;
       calls.sort((a, b) => a.workingDirectory!.compareTo(b.workingDirectory!));
-      expect(calls, isNotEmpty);
+      expect(env.process.calls, isNotEmpty);
 
       // For each repo dart pub upgrade should be called
       for (int i = 0; i < calls.length; i++) {
-        expect(calls[i].workingDirectory, sampleRepos[i].path);
+        expect(calls[i].workingDirectory, env.sampleRepos[i].path);
         expect(calls[i].dryRun, true);
         expect(calls[i].executable, 'dart');
         expect(
@@ -64,14 +69,15 @@ void main() {
     // .........................................................................
     test('should not add --dry-run when --dry-run is not given', () async {
       // Run the command
-      await runner.run([
+      await env.runner.run([
         'upgrade-dependencies',
         '--no-dry-run',
         '--input-dir',
-        root,
+        env.root,
       ]);
 
       // For each repo dart pub upgrade should be called
+      final calls = env.process.calls;
       for (int i = 0; i < calls.length; i++) {
         expect(calls[i].dryRun, false);
         expect(calls[i].arguments, ['pub', 'upgrade', '--major-versions']);
@@ -82,15 +88,27 @@ void main() {
     test('should log console output when process did not succeed', () async {
       // Define process result
       const error = 5;
-      processResult = ProcessResult(1, error, 'stdout', 'stderror');
+      final processResult = ProcessResult(1, error, 'stdout', 'stderror');
+
+      final env = TestEnvironment(processResult: processResult);
+
+      env.addCommand(
+        UpgradeDependencies(
+          log: env.logMessages.add,
+          runProcess: env.process.run,
+        ),
+      );
 
       // Run the command
-      await runner.run([
+      await env.runner.run([
         'upgrade-dependencies',
         '--no-dry-run',
         '--input-dir',
-        root,
+        env.root,
       ]);
+
+      final calls = env.process.calls;
+      final logMessages = env.logMessages;
 
       calls.sort((a, b) => a.workingDirectory!.compareTo(b.workingDirectory!));
 

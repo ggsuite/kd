@@ -12,15 +12,17 @@ import '../test_helpers/create_sample_repos.dart';
 import '../test_helpers/init_environment.dart';
 
 void main() {
+  late TestEnvironment env;
+
   // ...........................................................................
   setUp(() {
-    resetEnvironment(
+    env = TestEnvironment();
+    env.addCommand(
       OpenWithVscode(
-        log: logMessages.add,
-        processRun: processRun,
+        log: env.logMessages.add,
+        runProcess: env.process.run,
       ),
     );
-    logMessages.clear();
   });
 
   group('OpenWithVscode', () {
@@ -30,11 +32,12 @@ void main() {
       final root = sampleRepos[0].parent.absolute.path;
 
       // Run the command
-      runner.run(['open-with-vscode', '-i', root, '--file', 'pubspec.yaml']);
+      env.runner
+          .run(['open-with-vscode', '-i', root, '--file', 'pubspec.yaml']);
 
       // Onle one call should be executed
-      expect(calls.length, 1);
-      final call = calls.first;
+      expect(env.process.calls.length, 1);
+      final call = env.process.calls.first;
 
       // The working directory should be the root
       expect(call.workingDirectory, root);
@@ -55,13 +58,13 @@ void main() {
       final root = sampleRepos[0].parent.absolute.path;
 
       // Run the command
-      runner.run(['open-with-vscode', '-i', root, '--file', 'xyzabc']);
+      env.runner.run(['open-with-vscode', '-i', root, '--file', 'xyzabc']);
 
       // Nothing should be called
-      expect(calls.length, 0);
+      expect(env.process.calls.length, 0);
 
       // The working directory should be the root
-      expect(logMessages, ['No xyzabc found.']);
+      expect(env.logMessages, ['No xyzabc found.']);
     });
   });
 }
