@@ -23,7 +23,7 @@ class GgKidney extends Command<dynamic> {
 
   // ...........................................................................
   @override
-  final name = 'kidney';
+  final name = 'ggKidney';
   @override
   final description = 'Various maintenance tasks for our repositories.';
 }
