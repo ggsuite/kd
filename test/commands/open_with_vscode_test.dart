@@ -20,7 +20,7 @@ void main() {
     env.addCommand(
       OpenWithVscode(
         log: env.logMessages.add,
-        runProcess: env.process.run,
+        process: env.process,
       ),
     );
   });

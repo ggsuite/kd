@@ -4,7 +4,7 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'package:gg_test_helpers/gg_test_helpers.dart';
+import 'package:gg_capture_print/gg_capture_print.dart';
 import 'package:test/test.dart';
 
 import '../../bin/gg_kidney.dart';

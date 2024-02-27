@@ -9,13 +9,13 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:gg_kidney/src/commands/command_base.dart';
-import 'package:gg_test_helpers/gg_test_helpers.dart';
+import 'package:gg_process/gg_process.dart';
 
 import 'create_sample_repos.dart';
 
 class TestEnvironment {
   TestEnvironment({ProcessResult? processResult})
-      : process = FakeProcess(processResult: processResult);
+      : process = GgProcessMock(fakeResult: processResult);
   final List<String> logMessages = [];
   final List<Directory> sampleRepos = createSampleRepos();
   String get root => sampleRepos.first.parent.path;
@@ -24,5 +24,5 @@ class TestEnvironment {
     runner.addCommand(command);
   }
 
-  final FakeProcess process;
+  final GgProcessMock process;
 }

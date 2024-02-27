@@ -8,8 +8,8 @@ import 'dart:io';
 
 import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:gg_kidney/src/tools/get_dart_repos.dart';
+import 'package:gg_process/gg_process.dart';
 import 'package:path/path.dart';
-import 'package:gg_test_helpers/gg_test_helpers.dart';
 
 // #############################################################################
 /// Works through all repositories and updates the Dart SDK.
@@ -17,7 +17,7 @@ class OpenWithVscode extends CommandBase {
   /// Constructor
   OpenWithVscode({
     required super.log,
-    this.runProcess = Process.run,
+    this.process = const GgProcess(),
   }) : super(
           name: 'open-with-vscode',
           description: 'Edit project files with vscode.',
@@ -49,12 +49,12 @@ class OpenWithVscode extends CommandBase {
     }
 
     // Open the files with vscode
-    runProcess('code', fileList, workingDirectory: inputDir);
+    process.run('code', fileList, workingDirectory: inputDir);
   }
 
   // ...........................................................................
   /// The method
-  final RunProcess runProcess;
+  final GgProcess process;
 
   // ...........................................................................
   void _addArgs() {

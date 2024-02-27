@@ -6,8 +6,8 @@
 
 import 'dart:io';
 
+import 'package:gg_capture_print/gg_capture_print.dart';
 import 'package:gg_kidney/src/commands/upgrade_dependencies.dart';
-import 'package:gg_test_helpers/gg_test_helpers.dart';
 import 'package:path/path.dart';
 import 'package:test/test.dart';
 
@@ -25,7 +25,7 @@ void main() {
     env.addCommand(
       UpgradeDependencies(
         log: env.logMessages.add,
-        runProcess: env.process.run,
+        process: env.process,
       ),
     );
   });
@@ -95,7 +95,7 @@ void main() {
       env.addCommand(
         UpgradeDependencies(
           log: env.logMessages.add,
-          runProcess: env.process.run,
+          process: env.process,
         ),
       );
 
