@@ -15,7 +15,7 @@ import '../test_helpers/init_environment.dart';
 
 void main() {
   late TestEnvironment env;
-  final cwd = Directory.current.path;
+  final cwd = Directory.current;
   // ...........................................................................
   setUp(() {
     env = TestEnvironment();
@@ -36,30 +36,30 @@ void main() {
     test('should delete a file from one repo and all others', () async {
       // Pubspec.yaml should exist before
       for (final repo in env.sampleRepos) {
-        final file = File(join(repo.path, 'pubspec.yaml'));
+        final file = File(join(repo.path, 'test.txt'));
         expect(file.existsSync(), true);
       }
 
       // Change into first repo
-      Directory.current = env.sampleRepos.first.path;
+      Directory.current = env.sampleRepos.first;
 
       // Run the command
       await env.runner.run([
         'delete-file',
         '--file',
-        './pubspec.yaml',
+        './test.txt',
         '--apply',
       ]);
 
       // File should have been deleted
       for (final repo in env.sampleRepos) {
-        final file = File(join(repo.path, 'pubspec.yaml'));
+        final file = File(join(repo.path, 'test.txt'));
         expect(file.existsSync(), false);
       }
 
       // Check if right log messages have been written
       expect(
-        hasLog('Deleting pubspec.yaml from', env.logMessages),
+        hasLog('Deleting test.txt from', env.logMessages),
         isTrue,
       );
 
@@ -83,29 +83,29 @@ void main() {
     test('should not delete when --apply flag is not set', () async {
       // Pubspec.yaml should exist before
       for (final repo in env.sampleRepos) {
-        final file = File(join(repo.path, 'pubspec.yaml'));
+        final file = File(join(repo.path, 'test.txt'));
         expect(file.existsSync(), true);
       }
 
       // Change into first repo
-      Directory.current = env.sampleRepos.first.path;
+      Directory.current = env.sampleRepos.first;
 
       // Run the command
       await env.runner.run([
         'delete-file',
         '--file',
-        './pubspec.yaml',
+        './test.txt',
       ]);
 
       // File should have been deleted
       for (final repo in env.sampleRepos) {
-        final file = File(join(repo.path, 'pubspec.yaml'));
+        final file = File(join(repo.path, 'test.txt'));
         expect(file.existsSync(), true);
       }
 
       // Check if right log messages have been written
       expect(
-        hasLog('Deleting pubspec.yaml from', env.logMessages),
+        hasLog('Deleting test.txt from', env.logMessages),
         isTrue,
       );
 

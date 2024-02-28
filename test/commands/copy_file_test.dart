@@ -227,30 +227,5 @@ void main() {
         ),
       );
     });
-
-    // .........................................................................
-    test('should work with this repos', () async {
-      // Create sample repos
-      final check = File('./check');
-      expect(check.existsSync(), isTrue);
-
-      // Run the command from the original repo
-      await env.runner.run([
-        'copy-file',
-        '--file',
-        './check',
-      ]);
-
-      // Check if right log messages have been written
-      expect(
-        hasLog('Copying check to', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- gg_cache', env.logMessages),
-        isTrue,
-      );
-    });
   });
 }

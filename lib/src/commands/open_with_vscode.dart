@@ -17,7 +17,7 @@ class OpenWithVscode extends CommandBase {
   /// Constructor
   OpenWithVscode({
     required super.log,
-    this.process = const GgProcess(),
+    this.process = const GgProcessWrapper(),
   }) : super(
           name: 'open-with-vscode',
           description: 'Edit project files with vscode.',
@@ -26,9 +26,9 @@ class OpenWithVscode extends CommandBase {
   }
 
   @override
-  void willStart({
+  Future<void> willStart({
     required String inputDir,
-  }) {
+  }) async {
     // Read file option from args
     final fileToBeOpened = argResults?['file'] as String;
     // Get a list of all projects in inputDir
@@ -54,7 +54,7 @@ class OpenWithVscode extends CommandBase {
 
   // ...........................................................................
   /// The method
-  final GgProcess process;
+  final GgProcessWrapper process;
 
   // ...........................................................................
   void _addArgs() {

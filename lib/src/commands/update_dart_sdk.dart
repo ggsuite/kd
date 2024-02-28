@@ -37,9 +37,9 @@ class UpdateDartSdk extends CommandBase {
   // ...........................................................................
   late Version _version;
   @override
-  void willStart({
+  Future<void> willStart({
     required String inputDir,
-  }) {
+  }) async {
     _version = Version.parse(argResults?['min-version'] as String);
     log('Updating the Dart SDK to version $_version in $inputDir');
   }

@@ -17,7 +17,7 @@ class DeleteFile extends Command<dynamic> {
   /// Constructor
   DeleteFile({
     required this.log,
-    this.process = const GgProcess(),
+    this.process = const GgProcessWrapper(),
   }) {
     _addArgs();
   }
@@ -29,7 +29,7 @@ class DeleteFile extends Command<dynamic> {
 
   @override
   final String description =
-      'Delets a file from a reference project and all other projects.';
+      'Deletes a file from a reference project and all other projects.';
 
   // ...........................................................................
   @override
@@ -56,6 +56,7 @@ class DeleteFile extends Command<dynamic> {
         required referenceFile,
         required projectRoot,
       }) async {
+        log(Directory.current.path);
         if (fileToBeProcessed.existsSync()) {
           if (!dryRun) {
             fileToBeProcessed.deleteSync();
@@ -69,7 +70,7 @@ class DeleteFile extends Command<dynamic> {
 
   // ...........................................................................
   /// The method
-  final GgProcess process;
+  final GgProcessWrapper process;
 
   // ...........................................................................
   void _addArgs() {

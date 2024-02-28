@@ -50,9 +50,9 @@ abstract class CommandBase extends Command<dynamic> {
 
   // ...........................................................................
   /// Override this method to do some work before the run method is called.
-  void willStart({
+  Future<void> willStart({
     required String inputDir,
-  }) {}
+  }) async {}
 
   // ...........................................................................
   /// Override this method to process a project.
@@ -76,7 +76,7 @@ abstract class CommandBase extends Command<dynamic> {
     final dryRun = argResults?['dry-run'] as bool;
 
     // Anounce the start
-    willStart(inputDir: inputDir);
+    await willStart(inputDir: inputDir);
 
     // Iterate through all dart repositories found in the current directly
     await pp.processProjects(

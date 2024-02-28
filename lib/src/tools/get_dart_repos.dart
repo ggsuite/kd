@@ -21,7 +21,8 @@ List<Directory> getDartRepos({required Directory root}) {
   final dartRepos = dirs.where((d) {
     final pubspec = File('${d.path}/pubspec.yaml');
     return pubspec.existsSync();
-  }).toList();
+  }).toList()
+    ..sort((a, b) => a.path.compareTo(b.path));
 
   return dartRepos;
 }

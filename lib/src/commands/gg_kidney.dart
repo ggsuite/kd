@@ -5,6 +5,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:args/command_runner.dart';
+import 'package:gg_kidney/src/commands/check_all.dart';
 import 'package:gg_kidney/src/commands/copy_file.dart';
 import 'package:gg_kidney/src/commands/delete_file.dart';
 import 'package:gg_kidney/src/commands/open_with_vscode.dart';
@@ -20,6 +21,7 @@ class GgKidney extends Command<dynamic> {
     addSubcommand(OpenWithVscode(log: log));
     addSubcommand(CopyFile(log: log));
     addSubcommand(DeleteFile(log: log));
+    addSubcommand(CheckAll(log: log));
   }
 
   /// The log function

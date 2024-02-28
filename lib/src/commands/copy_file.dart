@@ -18,7 +18,7 @@ class CopyFile extends Command<dynamic> {
   /// Constructor
   CopyFile({
     required this.log,
-    this.process = const GgProcess(),
+    this.process = const GgProcessWrapper(),
   }) {
     _addArgs();
   }
@@ -91,7 +91,7 @@ class CopyFile extends Command<dynamic> {
 
   // ...........................................................................
   /// The method
-  final GgProcess process;
+  final GgProcessWrapper process;
 
   // ...........................................................................
   void _addArgs() {

@@ -41,11 +41,14 @@ List<Directory> createSampleRepos() {
   final dir2 = Directory('${tmp.path}/dir2')..createSync();
   final dartRepos = [dir0, dir1, dir2];
 
-  /// Create a pubspec.yaml file in each dir
+  /// Create a pubspec.yaml and a test.txt file in each dir
   for (final dir in dartRepos) {
     final file = File('${dir.path}/pubspec.yaml');
     final content = createSamplePubSpec(dir: dir);
     file.writeAsStringSync(content.toString());
+
+    final testFile = File('${dir.path}/test.txt');
+    testFile.writeAsStringSync('Test file for $dir');
   }
 
   return dartRepos;

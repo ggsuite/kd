@@ -27,7 +27,7 @@ class MyCommand extends CommandBase {
   String? startInpurtDir;
 
   @override
-  void willStart({required String inputDir}) {
+  Future<void> willStart({required String inputDir}) async {
     startInpurtDir = inputDir;
     super.willStart(inputDir: inputDir);
   }
