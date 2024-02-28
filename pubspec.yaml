@@ -13,6 +13,7 @@ dependencies:
   gg_args: ^1.0.0
   gg_capture_print: ^1.0.1
   gg_process: ^1.0.0
+  gg_project_root: ^1.0.0
   path: ^1.8.0
   pub_semver: ^2.1.4
   yaml_edit: ^2.1.1

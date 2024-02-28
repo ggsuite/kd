@@ -23,7 +23,7 @@ void main() {
 
       expect(
         runner.usage,
-        contains('kidney   Various maintenance tasks for our repositories.'),
+        contains('ggKidney   Various maintenance tasks for our repositories.'),
       );
     });
   });

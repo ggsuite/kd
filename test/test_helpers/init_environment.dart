@@ -8,7 +8,6 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:gg_process/gg_process.dart';
 
 import 'create_sample_repos.dart';
@@ -20,7 +19,7 @@ class TestEnvironment {
   final List<Directory> sampleRepos = createSampleRepos();
   String get root => sampleRepos.first.parent.path;
   final CommandRunner<dynamic> runner = CommandRunner<dynamic>('test', 'test');
-  void addCommand(CommandBase command) {
+  void addCommand(Command<dynamic> command) {
     runner.addCommand(command);
   }
 

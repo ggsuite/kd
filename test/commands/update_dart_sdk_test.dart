@@ -49,6 +49,15 @@ void main() {
   // ...........................................................................
   tearDown(() {
     for (final dir in dartRepos) {
+      if (dir.existsSync()) {
+        dir.deleteSync(recursive: true);
+      }
+    }
+  });
+
+  // ...........................................................................
+  tearDown(() {
+    for (final dir in dartRepos) {
       dir.deleteSync(recursive: true);
     }
   });
