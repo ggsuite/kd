@@ -6,6 +6,7 @@
 
 import 'package:args/command_runner.dart';
 import 'package:gg_kidney/src/commands/copy_file.dart';
+import 'package:gg_kidney/src/commands/delete_file.dart';
 import 'package:gg_kidney/src/commands/open_with_vscode.dart';
 import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
 import 'package:gg_kidney/src/commands/upgrade_dependencies.dart';
@@ -18,6 +19,7 @@ class GgKidney extends Command<dynamic> {
     addSubcommand(UpgradeDependencies(log: log));
     addSubcommand(OpenWithVscode(log: log));
     addSubcommand(CopyFile(log: log));
+    addSubcommand(DeleteFile(log: log));
   }
 
   /// The log function

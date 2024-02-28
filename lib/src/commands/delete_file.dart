@@ -12,10 +12,10 @@ import 'package:gg_process/gg_process.dart';
 import 'package:path/path.dart';
 
 // #############################################################################
-/// Copies a file from one repository to all other repositories.
-class CopyFile extends Command<dynamic> {
+/// Delets a file from one repository to all other repositories.
+class DeleteFile extends Command<dynamic> {
   /// Constructor
-  CopyFile({
+  DeleteFile({
     required this.log,
     this.process = const GgProcess(),
   }) {
@@ -25,11 +25,11 @@ class CopyFile extends Command<dynamic> {
   /// The log function
   final void Function(String message) log;
   @override
-  final String name = 'copy-file';
+  final String name = 'delete-file';
 
   @override
   final String description =
-      'Copies a file from a reference project to all other projects.';
+      'Delets a file from a reference project and all other projects.';
 
   // ...........................................................................
   @override
@@ -38,14 +38,14 @@ class CopyFile extends Command<dynamic> {
     final apply = argResults?['apply'] as bool;
     if (!apply) {
       log(
-        'Dry-run: No files will be copied. Run with --apply to apply changes.',
+        'Dry-run: No files will be deleted. Run with --apply to apply changes.',
       );
     }
 
     // Read file path from args
     final referenceFile = File(absolute(((argResults?['file'] as String))));
 
-    log('Copying ${basename(referenceFile.path)} to ');
+    log('Deleting ${basename(referenceFile.path)} from');
     await processFiles(
       referenceFile: referenceFile,
       dryRun: !apply,
@@ -56,24 +56,13 @@ class CopyFile extends Command<dynamic> {
         required referenceFile,
         required projectRoot,
       }) async {
-        // Don't copy reference file itself
-        if (fileToBeProcessed.path == referenceFile.path) {
-          return;
+        if (fileToBeProcessed.existsSync()) {
+          if (!dryRun) {
+            fileToBeProcessed.deleteSync();
+          }
+
+          log('- ${basename(projectRoot.path)}');
         }
-
-        // Create target directory
-        final targetDirPath = dirname(fileToBeProcessed.path);
-        Directory(targetDirPath).createSync(
-          recursive: true,
-        );
-
-        if (!dryRun) {
-          final newFilePath = fileToBeProcessed.path;
-          referenceFile.copySync(newFilePath);
-        }
-
-        // Log message
-        log('- ${basename(projectRoot.path)}');
       },
     );
   }
@@ -87,7 +76,7 @@ class CopyFile extends Command<dynamic> {
     argParser.addOption(
       'file',
       abbr: 'f',
-      help: 'The file to be copied to all other repos.',
+      help: 'The file to be deleted in all repos.',
       mandatory: true,
     );
 
