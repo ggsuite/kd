@@ -150,8 +150,7 @@ void main() {
       // Should have performed dry-run
       expect(
         hasLog(
-          'Dry-run: No files will be copied. '
-          'Run with --apply to apply changes.',
+          CopyFile.dryRunHint,
           env.logMessages,
         ),
         isTrue,

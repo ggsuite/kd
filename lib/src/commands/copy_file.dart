@@ -7,6 +7,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:colorize/colorize.dart';
 import 'package:gg_kidney/src/tools/process_files.dart';
 import 'package:gg_process/gg_process.dart';
 import 'package:path/path.dart';
@@ -32,14 +33,24 @@ class CopyFile extends Command<dynamic> {
       'Copies a file from a reference project to all other projects.';
 
   // ...........................................................................
+  /// A hint that is printed if dry-run is executed.
+  static String get dryRunHint {
+    final msgPart0 =
+        Colorize('Dry-run: No files will be copied. ').yellow().toString();
+    final msgPart1 = Colorize('Run with ').yellow().toString();
+    final msgPart2 = Colorize('--apply').red().toString();
+    final msgPart3 = Colorize(' to apply changes.').yellow().toString();
+
+    return '$msgPart0 $msgPart1$msgPart2$msgPart3';
+  }
+
+  // ...........................................................................
   @override
   Future<void> run() async {
     // Get apply flag
     final apply = argResults?['apply'] as bool;
     if (!apply) {
-      log(
-        'Dry-run: No files will be copied. Run with --apply to apply changes.',
-      );
+      log(dryRunHint);
     }
 
     // Read file path from args
