@@ -6,6 +6,7 @@
 
 import 'dart:io';
 
+import 'package:colorize/colorize.dart';
 import 'package:gg_capture_print/gg_capture_print.dart';
 import 'package:gg_kidney/src/commands/delete_file.dart';
 import 'package:path/path.dart';
@@ -15,16 +16,17 @@ import '../test_helpers/init_environment.dart';
 
 void main() {
   late TestEnvironment env;
-  final cwd = Directory.current;
+  final cwd = Directory.current.path;
+  const String fileToBeDeleted = './test.txt';
+  late DeleteFile deleteCmd;
+
   // ...........................................................................
   setUp(() {
     env = TestEnvironment();
-    env.addCommand(
-      DeleteFile(
-        log: env.logMessages.add,
-        process: env.process,
-      ),
+    deleteCmd = DeleteFile(
+      log: env.logMessages.add,
     );
+    env.addCommand(deleteCmd);
   });
 
   tearDown(() {
@@ -33,143 +35,81 @@ void main() {
 
   // ...........................................................................
   group('DeleteFile', () {
-    test('should delete a file from one repo and all others', () async {
-      // Pubspec.yaml should exist before
-      for (final repo in env.sampleRepos) {
-        final file = File(join(repo.path, 'test.txt'));
-        expect(file.existsSync(), true);
-      }
+    for (final dryRun in ['', '--dry-run', '--no-dry-run']) {
+      final isDryRun = dryRun == '--dry-run' || dryRun == '';
 
-      // Change into first repo
-      Directory.current = env.sampleRepos.first;
+      test('should copy a file to repos${isDryRun ? ' --dry-run' : ''}',
+          () async {
+        // Let file exist already in dir0
+        final dir0 = env.sampleRepos[0];
+        final existingFilePath = join(dir0.path, 'lib', 'a', 'b', 'test.txt');
+        final existingFile = File(existingFilePath);
+        Directory(dirname(existingFilePath)).createSync(recursive: true);
+        existingFile.writeAsStringSync('test');
 
-      // Run the command
-      await env.runner.run([
-        'delete-file',
-        '--file',
-        './test.txt',
-        '--apply',
-      ]);
-
-      // File should have been deleted
-      for (final repo in env.sampleRepos) {
-        final file = File(join(repo.path, 'test.txt'));
-        expect(file.existsSync(), false);
-      }
-
-      // Check if right log messages have been written
-      expect(
-        hasLog('Deleting test.txt from', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir0', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir2', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir1', env.logMessages),
-        isTrue,
-      );
-    });
-
-    // .........................................................................
-    test('should not delete when --apply flag is not set', () async {
-      // Pubspec.yaml should exist before
-      for (final repo in env.sampleRepos) {
-        final file = File(join(repo.path, 'test.txt'));
-        expect(file.existsSync(), true);
-      }
-
-      // Change into first repo
-      Directory.current = env.sampleRepos.first;
-
-      // Run the command
-      await env.runner.run([
-        'delete-file',
-        '--file',
-        './test.txt',
-      ]);
-
-      // File should have been deleted
-      for (final repo in env.sampleRepos) {
-        final file = File(join(repo.path, 'test.txt'));
-        expect(file.existsSync(), true);
-      }
-
-      // Check if right log messages have been written
-      expect(
-        hasLog('Deleting test.txt from', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir0', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir2', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir1', env.logMessages),
-        isTrue,
-      );
-    });
-
-    // .........................................................................
-    test('should throw if the file to delete does not exist', () async {
-      await expectLater(
-        () => env.runner.run([
+        // Run the command
+        await env.runner.run([
           'delete-file',
-          '--file',
-          '/xy/zk/ab.txt',
-          '--apply',
-        ]),
-        throwsA(
-          isA<ArgumentError>().having(
-            (e) => e.message,
-            'message',
-            'The file /xy/zk/ab.txt does not exist.',
-          ),
-        ),
-      );
-    });
+          '--source=$fileToBeDeleted',
+          '--repos=${env.root}',
+          dryRun,
+        ]);
 
-    // .........................................................................
-    test('should throw if the file to delete is not part of a flutter project',
-        () async {
-      // Create a file within a non-dart/flutter project
-      final tmpDir = Directory.systemTemp.createTempSync();
-      final subdir = Directory(join(tmpDir.path, 'a/b/c'))
-        ..createSync(recursive: true);
-      final filePath = join(subdir.path, 'test.txt');
-      File(filePath).writeAsStringSync('test');
+        // Did delete file in all repos? But only when not dry-run
+        for (final repo in env.sampleRepos) {
+          final deleteFilePath = join(repo.path, 'test.txt');
+          final file = File(deleteFilePath);
+          expect(file.existsSync(), isDryRun ? isTrue : isFalse);
+        }
 
-      // Run delete file
-      await expectLater(
-        () => env.runner.run([
-          'delete-file',
-          '--file',
-          filePath,
-          '--apply',
-        ]),
-        throwsA(
-          isA<ArgumentError>().having(
-            (e) => e.message,
-            'message',
-            'The file test.txt is not part of a dart or flutter project.',
-          ),
-        ),
-      );
+        // Did print dry-run hint?
+        expect(
+          hasLog(env.logMessages, deleteCmd.dryRunHint),
+          isDryRun ? isTrue : isFalse,
+        );
+
+        // Did write right log message?
+        expect(
+          hasLog(env.logMessages, 'Deleting ./test.txt from all repositories'),
+          isTrue,
+        );
+
+        // Did log copied file pathes?
+        expect(hasLog(env.logMessages, 'dir0/test.txt'), isTrue);
+        expect(hasLog(env.logMessages, 'dir1/test.txt'), isTrue);
+        expect(hasLog(env.logMessages, 'dir2/test.txt'), isTrue);
+
+        // Did print right colors?
+        final darkGray = Colorize().buildEscSeq(Styles.DARK_GRAY);
+        final red = Colorize().buildEscSeq(Styles.RED);
+        final color = isDryRun ? darkGray : red;
+        expect(hasLog(env.logMessages, color), isTrue);
+        expect(hasLog(env.logMessages, color), isTrue);
+        expect(hasLog(env.logMessages, color), isTrue);
+      });
+    }
+
+    // #########################################################################
+    group('should throw', () {
+      for (final missing in ['source']) {
+        test('when --"$missing" is not set', () async {
+          await expectLater(
+            env.runner.run([
+              'delete-file',
+              if (missing != 'source') '--source=${'./test.txt'}',
+              '--repos=${env.root}',
+              '--dry-run',
+            ]),
+            throwsA(
+              isA<ArgumentError>().having(
+                (ArgumentError e) => e.message,
+                'message',
+                contains('Option $missing is mandatory.'),
+              ),
+            ),
+          );
+        });
+      }
     });
   });
 }

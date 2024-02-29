@@ -19,9 +19,11 @@ void main() {
       final messages = <String>[];
       await processProjects(
         directory: tmp,
+        verbose: false,
         process: ({
           required dir,
           required dryRun,
+          required verbose,
           required log,
           required pubspec,
         }) async {
@@ -44,9 +46,11 @@ void main() {
       final messages = <String>[];
       await processProjects(
         directory: tmp,
+        verbose: false,
         process: ({
           required dir,
           required dryRun,
+          required verbose,
           required log,
           required pubspec,
         }) async {},

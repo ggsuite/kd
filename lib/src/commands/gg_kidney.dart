@@ -9,6 +9,7 @@ import 'package:gg_kidney/src/commands/check_all.dart';
 import 'package:gg_kidney/src/commands/copy_file.dart';
 import 'package:gg_kidney/src/commands/delete_file.dart';
 import 'package:gg_kidney/src/commands/open_with_vscode.dart';
+import 'package:gg_kidney/src/commands/run_shell_command.dart';
 import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
 import 'package:gg_kidney/src/commands/upgrade_dependencies.dart';
 
@@ -22,6 +23,7 @@ class GgKidney extends Command<dynamic> {
     addSubcommand(CopyFile(log: log));
     addSubcommand(DeleteFile(log: log));
     addSubcommand(CheckAll(log: log));
+    addSubcommand(RunShellCommand(log: log));
   }
 
   /// The log function

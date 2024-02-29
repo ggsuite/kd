@@ -6,85 +6,70 @@
 
 import 'dart:io';
 
-import 'package:args/command_runner.dart';
-import 'package:gg_kidney/src/tools/process_files.dart';
-import 'package:gg_process/gg_process.dart';
+import 'package:colorize/colorize.dart';
+import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:path/path.dart';
+import 'package:yaml_edit/yaml_edit.dart';
 
 // #############################################################################
 /// Delets a file from one repository to all other repositories.
-class DeleteFile extends Command<dynamic> {
+class DeleteFile extends CommandBase {
   /// Constructor
   DeleteFile({
-    required this.log,
-    this.process = const GgProcessWrapper(),
-  }) {
+    required super.log,
+  }) : super(
+          name: 'delete-file',
+          description:
+              'Deletes a file from a reference project and all other projects.',
+        ) {
     _addArgs();
   }
 
-  /// The log function
-  final void Function(String message) log;
-  @override
-  final String name = 'delete-file';
-
-  @override
-  final String description =
-      'Deletes a file from a reference project and all other projects.';
-
   // ...........................................................................
   @override
-  Future<void> run() async {
-    // Get apply flag
-    final apply = argResults?['apply'] as bool;
-    if (!apply) {
-      log(
-        'Dry-run: No files will be deleted. Run with --apply to apply changes.',
-      );
-    }
+  Future<void> willStart({
+    required String inputDir,
+  }) async {
+    _fileToBeDeleted = argResults?['source'] as String;
 
-    // Read file path from args
-    final referenceFile = File(absolute(((argResults?['file'] as String))));
-
-    log('Deleting ${basename(referenceFile.path)} from');
-    await processFiles(
-      referenceFile: referenceFile,
-      dryRun: !apply,
-      log: log,
-      process: ({
-        required dryRun,
-        required fileToBeProcessed,
-        required referenceFile,
-        required projectRoot,
-      }) async {
-        log(Directory.current.path);
-        if (fileToBeProcessed.existsSync()) {
-          if (!dryRun) {
-            fileToBeProcessed.deleteSync();
-          }
-
-          log('- ${basename(projectRoot.path)}');
-        }
-      },
-    );
+    log('Deleting $_fileToBeDeleted from all repositories');
+    super.willStart(inputDir: inputDir);
   }
 
   // ...........................................................................
-  /// The method
-  final GgProcessWrapper process;
+  @override
+  Future<void> processProject({
+    required YamlEditor pubspec,
+    required Directory dir,
+    required bool dryRun,
+    required bool verbose,
+    required void Function(String p1) log,
+  }) async {
+    // Define target file path
+    final targetFilePath = canonicalize(join(dir.path, _fileToBeDeleted));
+    final targetFile = File(targetFilePath);
+
+    // Log file to be deleted
+    final message = Colorize(targetFile.path);
+
+    // File does not exists? Print file in dark gray
+    if (!targetFile.existsSync() || dryRun) {
+      log('- ${message.darkGray()}');
+    } else {
+      targetFile.deleteSync();
+      log('- ${message.red()}');
+    }
+  }
 
   // ...........................................................................
   void _addArgs() {
     argParser.addOption(
-      'file',
-      abbr: 'f',
-      help: 'The file to be deleted in all repos.',
+      'source',
+      abbr: 's',
+      help: 'The file to be copied to all repos.',
       mandatory: true,
     );
-
-    argParser.addFlag(
-      'apply',
-      help: 'Really apply the changes. By default only dry-run is preformed',
-      defaultsTo: false,
-    );
   }
+
+  late String _fileToBeDeleted;
 }

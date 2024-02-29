@@ -6,6 +6,7 @@
 
 import 'dart:io';
 
+import 'package:colorize/colorize.dart';
 import 'package:gg_capture_print/gg_capture_print.dart';
 import 'package:gg_kidney/src/commands/copy_file.dart';
 import 'package:path/path.dart';
@@ -16,15 +17,25 @@ import '../test_helpers/init_environment.dart';
 void main() {
   late TestEnvironment env;
   final cwd = Directory.current.path;
+  late File testFile;
+  late CopyFile copyFile;
+
+  // ...........................................................................
+  void initTestFile() {
+    final tmpDir = Directory.systemTemp.createTempSync();
+    final testFilePath = join(tmpDir.path, 'test.txt');
+    testFile = File(testFilePath)..writeAsString('test');
+  }
+
+  initTestFile();
+
   // ...........................................................................
   setUp(() {
     env = TestEnvironment();
-    env.addCommand(
-      CopyFile(
-        log: env.logMessages.add,
-        process: env.process,
-      ),
+    copyFile = CopyFile(
+      log: env.logMessages.add,
     );
+    env.addCommand(copyFile);
   });
 
   tearDown(() {
@@ -33,199 +44,114 @@ void main() {
 
   // ...........................................................................
   group('CopyFile', () {
-    test('should copy a file from one repo to all others', () async {
-      // Create sample repos
+    for (final dryRun in [true, false]) {
+      for (final force in [true, false]) {
+        test(
+            'should copy a file to repos${dryRun ? ' --dry-run' : ''}'
+            '${force ? ' --force' : ''}', () async {
+          // Let file exist already in dir0
+          final dir0 = env.sampleRepos[0];
+          final existingFilePath = join(dir0.path, 'lib', 'a', 'b', 'test.txt');
+          final existingFile = File(existingFilePath);
+          Directory(dirname(existingFilePath)).createSync(recursive: true);
+          existingFile.writeAsStringSync('test');
 
-      // Create a test file within first repo
-      final originalDir = env.sampleRepos.first.path;
-      final testFileDir = join(originalDir, 'lib', 'a', 'b');
-      Directory(testFileDir).createSync(recursive: true);
-      final testFilePath = join(testFileDir, 'test.txt');
-      File(testFilePath).writeAsStringSync('test');
+          // Run the command
+          await env.runner.run([
+            'copy-file',
+            '--source=${testFile.path}',
+            '--repos=${env.root}',
+            '--output=${'lib/a/b/test.txt'}',
+            if (force) '--force',
+            dryRun ? '--dry-run' : '--no-dry-run',
+          ]);
 
-      // Run the command
-      await env.runner.run([
-        'copy-file',
-        '--file',
-        testFilePath,
-        '--apply',
-      ]);
+          // Did copy file to all repos?
+          for (final repo in env.sampleRepos) {
+            final newFilePath = join(repo.path, 'lib', 'a', 'b', 'test.txt');
+            final file = File(newFilePath);
+            final isExisting = file.path == existingFile.path;
+            expect(file.existsSync(), dryRun && !isExisting ? false : true);
 
-      // Check if the file has been copied to all other repos
-      for (final repo in env.sampleRepos) {
-        final newFilePath = join(repo.path, 'lib', 'a', 'b', 'test.txt');
-        final file = File(newFilePath);
-        expect(file.existsSync(), true);
-        expect(file.readAsStringSync(), 'test');
+            if (!dryRun) {
+              expect(file.readAsStringSync(), 'test');
+            }
+          }
+
+          // Did print dry-run hint?
+          expect(
+            hasLog(env.logMessages, copyFile.dryRunHint),
+            dryRun ? isTrue : isFalse,
+          );
+
+          // Did write right log message?
+          expect(hasLog(env.logMessages, 'Copying test.txt to'), isTrue);
+          expect(
+            hasLog(env.logMessages, 'Existing files will not be overwritten'),
+            force ? isFalse : isTrue,
+          );
+
+          // Did log copied file pathes?
+          expect(
+            hasLog(env.logMessages, 'dir0/lib/a/b/test.txt'),
+            force ? isTrue : isFalse,
+          );
+          expect(hasLog(env.logMessages, 'dir1/lib/a/b/test.txt'), isTrue);
+          expect(hasLog(env.logMessages, 'dir2/lib/a/b/test.txt'), isTrue);
+
+          // Did print right colors?
+          final darkGray = Colorize().buildEscSeq(Styles.DARK_GRAY);
+          final blue = Colorize().buildEscSeq(Styles.BLUE);
+          final color = dryRun ? darkGray : blue;
+          expect(hasLog(env.logMessages, color), isTrue);
+          expect(hasLog(env.logMessages, color), isTrue);
+          expect(hasLog(env.logMessages, color), isTrue);
+        });
       }
+    }
 
-      // Check if right log messages have been written
-      expect(
-        hasLog('Copying test.txt to', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir2', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir1', env.logMessages),
-        isTrue,
-      );
-    });
-
-    // .........................................................................
-    test('should copy also when file path is relative to repo', () async {
-      // Create sample repos
-
-      // Create a test file within first repo
-      final originalRepo = env.sampleRepos.first.path;
-      final testFileDir = join(originalRepo, 'lib', '.', 'a', 'b', '.');
-      Directory(testFileDir).createSync(recursive: true);
-      final testFilePath = join(testFileDir, 'test.txt');
-      File(testFilePath).writeAsStringSync('test');
-
-      // Create relative test file path
-      final relativeTestFilePath = relative(testFilePath, from: originalRepo);
-
-      // Run the command from the original repo
-      Directory.current = originalRepo;
-      await env.runner.run([
-        'copy-file',
-        '--file',
-        relativeTestFilePath,
-        '--apply',
-      ]);
-
-      // Check if the file has been copied to all other repos
-      for (final repo in env.sampleRepos) {
-        final newFilePath = join(repo.path, 'lib', 'a', 'b', 'test.txt');
-        final file = File(newFilePath);
-        expect(file.existsSync(), true);
-        expect(file.readAsStringSync(), 'test');
-      }
-
-      // Check if right log messages have been written
-      expect(
-        hasLog('Copying test.txt to', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir2', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir1', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir0', env.logMessages),
-        isFalse,
-      );
-    });
-
-    // .........................................................................
-    test('should not copy when --apply flag is not set', () async {
-      // Create sample repos
-
-      // Create a test file within first repo
-      final originalDir = env.sampleRepos.first.path;
-      final testFileDir = join(originalDir, 'lib', 'a', 'b');
-      Directory(testFileDir).createSync(recursive: true);
-      final testFilePath = join(testFileDir, 'test.txt');
-      File(testFilePath).writeAsStringSync('test');
-
-      // Run the command
-      await env.runner.run([
-        'copy-file',
-        '--file',
-        testFilePath,
-      ]);
-
-      // Should have performed dry-run
-      expect(
-        hasLog(
-          CopyFile.dryRunHint,
-          env.logMessages,
-        ),
-        isTrue,
-      );
-
-      // Check if the file has been copied to all other repos
-      for (final repo in env.sampleRepos) {
-        final isOriginal = repo.path == originalDir;
-        final newFilePath = join(repo.path, 'lib', 'a', 'b', 'test.txt');
-        final file = File(newFilePath);
-        expect(file.existsSync(), isOriginal ? true : false);
-      }
-
-      // Check if right log messages have been written
-      expect(
-        hasLog('Copying test.txt to', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir2', env.logMessages),
-        isTrue,
-      );
-
-      expect(
-        hasLog('- dir1', env.logMessages),
-        isTrue,
-      );
-    });
-
-    // .........................................................................
-    test('should throw if the file to copy does not exist', () async {
-      await expectLater(
-        () => env.runner.run([
-          'copy-file',
-          '--file',
-          '/xy/zk/ab.txt',
-          '--apply',
-        ]),
-        throwsA(
-          isA<ArgumentError>().having(
-            (e) => e.message,
-            'message',
-            'The file /xy/zk/ab.txt does not exist.',
+    // #########################################################################
+    group('should throw', () {
+      // .......................................................................
+      test('when source file does not exist', () async {
+        await expectLater(
+          () => env.runner.run([
+            'copy-file',
+            '--source=not-existing.txt',
+            '--repos=${env.root}',
+            '--output=lib/a/b/test.txt',
+          ]),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              'path',
+              contains('The file to be copied does not exist.'),
+            ),
           ),
-        ),
-      );
-    });
+        );
+      });
 
-    // .........................................................................
-    test('should throw if the file to copy is not part of a flutter project',
-        () async {
-      // Create a file within a non-dart/flutter project
-      final tmpDir = Directory.systemTemp.createTempSync();
-      final subdir = Directory(join(tmpDir.path, 'a/b/c'))
-        ..createSync(recursive: true);
-      final filePath = join(subdir.path, 'test.txt');
-      File(filePath).writeAsStringSync('test');
-
-      // Run copy file
-      await expectLater(
-        () => env.runner.run([
-          'copy-file',
-          '--file',
-          filePath,
-          '--apply',
-        ]),
-        throwsA(
-          isA<ArgumentError>().having(
-            (e) => e.message,
-            'message',
-            'The file test.txt is not part of a dart or flutter project.',
-          ),
-        ),
-      );
+      for (final missing in ['source', 'output']) {
+        test('when "$missing" is not set', () async {
+          await expectLater(
+            env.runner.run([
+              'copy-file',
+              if (missing != 'source') '--source=${testFile.path}',
+              '--repos=${env.root}',
+              if (missing != 'output') '--output=${'lib/a/b/test.txt'}',
+              '--force',
+              '--dry-run',
+            ]),
+            throwsA(
+              isA<ArgumentError>().having(
+                (ArgumentError e) => e.message,
+                'message',
+                contains('Option $missing is mandatory.'),
+              ),
+            ),
+          );
+        });
+      }
     });
   });
 }

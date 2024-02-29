@@ -6,106 +6,109 @@
 
 import 'dart:io';
 
-import 'package:args/command_runner.dart';
 import 'package:colorize/colorize.dart';
-import 'package:gg_kidney/src/tools/process_files.dart';
-import 'package:gg_process/gg_process.dart';
+import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:path/path.dart';
+import 'package:yaml_edit/yaml_edit.dart';
 
 // #############################################################################
 /// Copies a file from one repository to all other repositories.
-class CopyFile extends Command<dynamic> {
+class CopyFile extends CommandBase {
   /// Constructor
   CopyFile({
-    required this.log,
-    this.process = const GgProcessWrapper(),
-  }) {
+    required super.log,
+  }) : super(
+          name: 'copy-file',
+          description:
+              'Copies a file from a reference project to all other projects.',
+        ) {
     _addArgs();
   }
 
-  /// The log function
-  final void Function(String message) log;
-  @override
-  final String name = 'copy-file';
-
-  @override
-  final String description =
-      'Copies a file from a reference project to all other projects.';
-
-  // ...........................................................................
-  /// A hint that is printed if dry-run is executed.
-  static String get dryRunHint {
-    final msgPart0 =
-        Colorize('Dry-run: No files will be copied. ').yellow().toString();
-    final msgPart1 = Colorize('Run with ').yellow().toString();
-    final msgPart2 = Colorize('--apply').red().toString();
-    final msgPart3 = Colorize(' to apply changes.').yellow().toString();
-
-    return '$msgPart0 $msgPart1$msgPart2$msgPart3';
-  }
-
   // ...........................................................................
   @override
-  Future<void> run() async {
-    // Get apply flag
-    final apply = argResults?['apply'] as bool;
-    if (!apply) {
-      log(dryRunHint);
+  Future<void> willStart({
+    required String inputDir,
+  }) async {
+    _fileToBeCopied = File(absolute(((argResults?['source'] as String))));
+    _outputPath = argResults?['output'] as String;
+    _force = argResults?['force'] as bool;
+
+    log('Copying ${basename(_fileToBeCopied.path)} to $_outputPath');
+    super.willStart(inputDir: inputDir);
+
+    if (!_fileToBeCopied.existsSync()) {
+      throw ArgumentError('The file to be copied does not exist.');
     }
 
-    // Read file path from args
-    final referenceFile = File(absolute(((argResults?['file'] as String))));
-
-    log('Copying ${basename(referenceFile.path)} to ');
-    await processFiles(
-      referenceFile: referenceFile,
-      dryRun: !apply,
-      log: log,
-      process: ({
-        required dryRun,
-        required fileToBeProcessed,
-        required referenceFile,
-        required projectRoot,
-      }) async {
-        // Don't copy reference file itself
-        if (fileToBeProcessed.path == referenceFile.path) {
-          return;
-        }
-
-        // Create target directory
-        final targetDirPath = dirname(fileToBeProcessed.path);
-        Directory(targetDirPath).createSync(
-          recursive: true,
-        );
-
-        if (!dryRun) {
-          final newFilePath = fileToBeProcessed.path;
-          referenceFile.copySync(newFilePath);
-        }
-
-        // Log message
-        log('- ${basename(projectRoot.path)}');
-      },
-    );
+    if (!_force) {
+      final forceStr = Colorize('--force').red().toString();
+      log(
+        'Existing files will not be overwritten. Use $forceStr to overwrite.',
+      );
+    }
   }
 
   // ...........................................................................
-  /// The method
-  final GgProcessWrapper process;
+  @override
+  Future<void> processProject({
+    required YamlEditor pubspec,
+    required Directory dir,
+    required bool dryRun,
+    required bool verbose,
+    required void Function(String p1) log,
+  }) async {
+    // Define target file path
+    final targetFile = File('${dir.path}/$_outputPath');
+    final targetDirPath = dirname(targetFile.path);
+
+    // File exists? Skip when not forced
+    if (!_force && targetFile.existsSync()) {
+      return;
+    }
+
+    // Create target directory
+    Directory(targetDirPath).createSync(
+      recursive: true,
+    );
+
+    // Log directory
+    final message = Colorize(targetFile.path);
+
+    // Log gray when dry-run, blue, when not
+    if (dryRun) {
+      log('- ${message.darkGray()}');
+    } else {
+      _fileToBeCopied.copySync(targetFile.path);
+      log('- ${message.blue()}');
+    }
+  }
 
   // ...........................................................................
   void _addArgs() {
     argParser.addOption(
-      'file',
-      abbr: 'f',
-      help: 'The file to be copied to all other repos.',
+      'source',
+      abbr: 's',
+      help: 'The file to be copied to all repos.',
+      mandatory: true,
+    );
+
+    argParser.addOption(
+      'output',
+      abbr: 'o',
+      help: 'The relative path of the file in the target repos.',
       mandatory: true,
     );
 
     argParser.addFlag(
-      'apply',
-      help: 'Really apply the changes. By default only dry-run is preformed',
+      'force',
+      abbr: 'f',
+      help: 'Overwrite existing files.',
       defaultsTo: false,
     );
   }
+
+  late File _fileToBeCopied;
+  late String _outputPath;
+  late bool _force;
 }

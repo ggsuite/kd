@@ -22,13 +22,13 @@ class CheckAll extends CommandBase {
   }) : super(
           name: 'check-all',
           description: 'Run gg_check all on all repos.',
-        ) {
-    _addArgs();
-  }
+        );
 
   // ...........................................................................
   @override
   Future<void> willStart({required String inputDir}) async {
+    super.willStart(inputDir: inputDir);
+
     // Check if ggCheck is installed
     // coverage:ignore-start
     final result = await processWrapper.run('ggCheck', ['--version']);
@@ -44,6 +44,7 @@ class CheckAll extends CommandBase {
     required YamlEditor pubspec,
     required Directory dir,
     required bool dryRun,
+    required bool verbose,
     void Function(String p1)? log,
   }) async {
     final dirName = basename(dir.path);
@@ -73,6 +74,8 @@ class CheckAll extends CommandBase {
       });
     }
 
+    // Todo: Don't print carriage return when running on github
+
     final result = await p.exitCode;
     const cr = '\x1b[1A\x1b[2K';
     if (result != 0) {
@@ -81,18 +84,6 @@ class CheckAll extends CommandBase {
     } else {
       log?.call('$cr✅ $dirName');
     }
-  }
-
-  // ...........................................................................
-  // verbose flag
-  void _addArgs() {
-    argParser.addFlag(
-      'verbose',
-      abbr: 'v',
-      negatable: false,
-      help: 'Prints additional information.',
-      defaultsTo: false,
-    );
   }
 
   // ...........................................................................

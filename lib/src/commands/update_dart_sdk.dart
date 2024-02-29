@@ -27,7 +27,7 @@ class UpdateDartSdk extends CommandBase {
   void _addArgs() {
     argParser.addOption(
       'min-version',
-      abbr: 'v',
+      abbr: 'm',
       help: 'The minium supported Dart SDK',
       valueHelp: '3.3.0',
       mandatory: true,
@@ -36,6 +36,8 @@ class UpdateDartSdk extends CommandBase {
 
   // ...........................................................................
   late Version _version;
+
+  // ...........................................................................
   @override
   Future<void> willStart({
     required String inputDir,
@@ -50,6 +52,7 @@ class UpdateDartSdk extends CommandBase {
     required YamlEditor pubspec,
     required Directory dir,
     required bool dryRun,
+    required bool verbose,
     void Function(String p1)? log,
   }) async {
     // Compose the version string

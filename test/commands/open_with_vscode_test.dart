@@ -33,7 +33,7 @@ void main() {
 
       // Run the command
       env.runner
-          .run(['open-with-vscode', '-i', root, '--file', 'pubspec.yaml']);
+          .run(['open-with-vscode', '-r', root, '--file', 'pubspec.yaml']);
 
       // Onle one call should be executed
       expect(env.process.calls.length, 1);
@@ -58,7 +58,7 @@ void main() {
       final root = sampleRepos[0].parent.absolute.path;
 
       // Run the command
-      env.runner.run(['open-with-vscode', '-i', root, '--file', 'xyzabc']);
+      env.runner.run(['open-with-vscode', '-r', root, '--file', 'xyzabc']);
 
       // Nothing should be called
       expect(env.process.calls.length, 0);

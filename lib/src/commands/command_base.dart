@@ -7,6 +7,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:colorize/colorize.dart';
 import 'package:gg_kidney/src/tools/process_projects.dart' as pp;
 import 'package:yaml_edit/yaml_edit.dart';
 
@@ -33,8 +34,8 @@ abstract class CommandBase extends Command<dynamic> {
   // ...........................................................................
   void _addArgs() {
     argParser.addOption(
-      'input-dir',
-      abbr: 'i',
+      'repos',
+      abbr: 'r',
       help: 'The directory to search for dart repositories',
       defaultsTo: '.',
     );
@@ -43,6 +44,14 @@ abstract class CommandBase extends Command<dynamic> {
       'dry-run',
       abbr: 'd',
       help: 'Do not change any files',
+      defaultsTo: true,
+      negatable: true,
+    );
+
+    argParser.addFlag(
+      'verbose',
+      abbr: 'v',
+      help: 'Print more detailed output',
       defaultsTo: false,
       negatable: true,
     );
@@ -52,7 +61,12 @@ abstract class CommandBase extends Command<dynamic> {
   /// Override this method to do some work before the run method is called.
   Future<void> willStart({
     required String inputDir,
-  }) async {}
+  }) async {
+    // Print dry-run hint
+    if (argResults?['dry-run'] as bool) {
+      log(dryRunHint);
+    }
+  }
 
   // ...........................................................................
   /// Override this method to process a project.
@@ -60,9 +74,22 @@ abstract class CommandBase extends Command<dynamic> {
     required YamlEditor pubspec,
     required Directory dir,
     required bool dryRun,
-    void Function(String)? log,
+    required bool verbose,
+    required void Function(String) log,
   }) =>
       Future.value();
+
+  // ...........................................................................
+  /// A hint that is printed if dry-run is executed.
+  String get dryRunHint {
+    final msgPart0 =
+        Colorize('Dry-run: Nothing will change. ').yellow().toString();
+    final msgPart1 = Colorize('Run with ').yellow().toString();
+    final msgPart2 = Colorize('--no-dry-run').red().toString();
+    final msgPart3 = Colorize(' to apply changes.').yellow().toString();
+
+    return '$msgPart0 $msgPart1$msgPart2$msgPart3';
+  }
 
   // ...........................................................................
   /// Override this method to do some work after the run method is called.
@@ -72,8 +99,9 @@ abstract class CommandBase extends Command<dynamic> {
   @override
   Future<void> run() async {
     // Read the command line arguments
-    final inputDir = argResults?['input-dir'] as String;
+    final inputDir = argResults?['repos'] as String;
     final dryRun = argResults?['dry-run'] as bool;
+    final verbose = argResults?['verbose'] as bool;
 
     // Anounce the start
     await willStart(inputDir: inputDir);
@@ -84,6 +112,7 @@ abstract class CommandBase extends Command<dynamic> {
       process: processProject,
       dryRun: dryRun,
       log: log,
+      verbose: verbose,
     );
 
     // Anounce the end

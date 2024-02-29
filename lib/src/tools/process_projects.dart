@@ -15,19 +15,21 @@ typedef ProjectProcessor = Future<void> Function({
   required YamlEditor pubspec,
   required Directory dir,
   required bool dryRun,
-  required void Function(String)? log,
+  required bool verbose,
+  required void Function(String) log,
 });
 
 /// Processes all pubspec.yaml files in the given directory.
 Future<void> processProjects({
   required Directory directory,
   required ProjectProcessor process,
+  required void Function(String) log,
+  required bool verbose,
   bool dryRun = false,
-  void Function(String)? log,
 }) async {
   final dartRepos = getDartRepos(root: directory);
 
-  if (log != null && dartRepos.isEmpty) {
+  if (dartRepos.isEmpty) {
     final dir = basename(directory.path);
     log('No dart repositories found in $dir');
   }
@@ -40,6 +42,7 @@ Future<void> processProjects({
       dir: dir,
       log: log,
       dryRun: dryRun,
+      verbose: verbose,
     );
   }
 }

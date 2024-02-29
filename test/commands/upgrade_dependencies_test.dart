@@ -37,7 +37,7 @@ void main() {
       await env.runner.run([
         'upgrade-dependencies',
         '--dry-run',
-        '--input-dir',
+        '--repos',
         env.root,
       ]);
 
@@ -72,7 +72,7 @@ void main() {
       await env.runner.run([
         'upgrade-dependencies',
         '--no-dry-run',
-        '--input-dir',
+        '--repos',
         env.root,
       ]);
 
@@ -103,7 +103,7 @@ void main() {
       await env.runner.run([
         'upgrade-dependencies',
         '--no-dry-run',
-        '--input-dir',
+        '--repos',
         env.root,
       ]);
 
@@ -117,24 +117,24 @@ void main() {
         final dir = basename(calls[i].workingDirectory!);
         expect(
           hasLog(
+            logMessages,
             'Failed to upgrade dependencies for $dir',
-            logMessages,
           ),
           isTrue,
         );
 
         expect(
           hasLog(
+            logMessages,
             'stderror',
-            logMessages,
           ),
           isTrue,
         );
 
         expect(
           hasLog(
-            'stdout',
             logMessages,
+            'stdout',
           ),
           isTrue,
         );

@@ -70,8 +70,10 @@ void main() {
 
         runner.run([
           'check-all',
-          '--input-dir',
+          '--repos',
           root.path,
+          '--no-dry-run',
+          '--verbose',
         ]).then((value) => finished = true);
 
         // Wait a little bit
@@ -88,7 +90,7 @@ void main() {
         expect(basename(lastCallArgs.workingDirectory!), 'dir0');
 
         // Start message should be logged
-        expect(messages[i++], 'Checking dir0');
+        expect(messages[i++], '⌛️ dir0');
 
         // stdout and stderr should be logged
         lastProcess.pushToStdout.add('dir0 is ok.');
@@ -99,16 +101,19 @@ void main() {
 
         // Finish the process for dir0
         lastProcess.exit(0);
+        fake.flushMicrotasks();
+
+        // Success should be logged
+        expect(messages[i++], contains('✅ dir0'));
 
         // .............
         // Process dir 1
-        fake.flushMicrotasks();
         expect(lastCallArgs.executable, 'ggCheck');
         expect(lastCallArgs.arguments, ['all']);
         expect(basename(lastCallArgs.workingDirectory!), 'dir1');
 
         // Start message should be logged
-        expect(messages[i++], 'Checking dir1');
+        expect(messages[i++], '⌛️ dir1');
 
         // stdout and stderr should be logged
         lastProcess.pushToStdout.add('dir1 is ok.');
@@ -117,8 +122,12 @@ void main() {
         lastProcess.pushToStderr.add('dir1 has some error.');
         expect(messages[i++], 'dir1 has some error.');
 
-        // Finish the process for dir1
-        lastProcess.exit(0);
+        // Finish the process for dir1 with fail
+        lastProcess.exit(1);
+        fake.flushMicrotasks();
+
+        // Faile should be logged
+        expect(messages[i++], contains('❌ dir1'));
 
         // .............
         // Process dir 2
@@ -128,7 +137,7 @@ void main() {
         expect(basename(lastCallArgs.workingDirectory!), 'dir2');
 
         // Start message should be logged
-        expect(messages[i++], 'Checking dir2');
+        expect(messages[i++], contains('⌛️ dir2'));
 
         // stdout and stderr should be logged
         lastProcess.pushToStdout.add('dir2 is ok.');
@@ -139,6 +148,10 @@ void main() {
 
         // Finish the process for dir2
         lastProcess.exit(0);
+        fake.flushMicrotasks();
+
+        // Success should be logged
+        expect(messages[i++], contains('✅ dir2'));
 
         // .............
         // After all processes have finished

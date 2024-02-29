@@ -41,6 +41,7 @@ class UpgradeDependencies extends CommandBase {
     required YamlEditor pubspec,
     required Directory dir,
     required bool dryRun,
+    required bool verbose,
     void Function(String p1)? log,
   }) async {
     // Write a log message

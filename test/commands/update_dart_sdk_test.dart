@@ -7,6 +7,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:gg_capture_print/gg_capture_print.dart';
 import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
 import 'package:test/test.dart';
 
@@ -82,7 +83,7 @@ void main() {
           () async {
         // Run in empty directory
         await runner.run(
-          ['update-dart-sdk', '-i', emptyDir.path, '--min-version', '3.3.0'],
+          ['update-dart-sdk', '-r', emptyDir.path, '--min-version', '3.3.0'],
         );
 
         // An error message should be printed
@@ -98,21 +99,34 @@ void main() {
       });
 
       // .......................................................................
-      test('should update the dart sdk in a given project', () async {
-        await runner.run([
-          'update-dart-sdk',
-          '--min-version',
-          '3.3.0',
-          '-i',
-          dir0.path,
-        ]);
-        expectMessage(
-          'Updated the Dart SDK version to ">=3.3.0<4.0.0" in dir0',
-        );
+      for (final dryRun in ['', '--dry-run', '--no-dry-run']) {
+        test('should update the dart sdk in a given project $dryRun', () async {
+          final isDryRun = dryRun == '--dry-run' || dryRun == '';
 
-        final pubspec = File('${dir0.path}/pubspec.yaml').readAsStringSync();
-        expect(pubspec.contains('sdk: ">=3.3.0<4.0.0"'), isTrue);
-      });
+          await runner.run([
+            'update-dart-sdk',
+            '--min-version',
+            '3.3.0',
+            '-r',
+            dir0.path,
+            dryRun,
+          ]);
+
+          expect(
+            hasLog(
+              messages,
+              'Updated the Dart SDK version to ">=3.3.0<4.0.0" in dir0',
+            ),
+            isTrue,
+          );
+
+          final pubspec = File('${dir0.path}/pubspec.yaml').readAsStringSync();
+          expect(
+            pubspec.contains('sdk: ">=3.3.0<4.0.0"'),
+            isDryRun ? isFalse : isTrue,
+          );
+        });
+      }
 
       // .......................................................................
       test('should update all dart repositories in the current directory',
@@ -121,7 +135,7 @@ void main() {
           'update-dart-sdk',
           '--min-version',
           '3.3.0',
-          '-i',
+          '-r',
           tmp.path,
         ]);
 

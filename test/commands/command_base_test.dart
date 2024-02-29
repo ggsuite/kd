@@ -7,6 +7,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:gg_capture_print/gg_capture_print.dart';
 import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:test/test.dart';
 import 'package:yaml_edit/src/editor.dart';
@@ -24,11 +25,11 @@ class MyCommand extends CommandBase {
         );
 
   // ...........................................................................
-  String? startInpurtDir;
+  String? startInputDir;
 
   @override
   Future<void> willStart({required String inputDir}) async {
-    startInpurtDir = inputDir;
+    startInputDir = inputDir;
     super.willStart(inputDir: inputDir);
   }
 
@@ -40,19 +41,23 @@ class MyCommand extends CommandBase {
     required YamlEditor pubspec,
     required Directory dir,
     required bool dryRun,
-    void Function(String p1)? log,
+    required bool verbose,
+    required void Function(String p1) log,
   }) async {
+    this.dryRun = dryRun;
     processedProjects.add((pubspec, dir, dryRun, log));
     super.processProject(
       pubspec: pubspec,
       dir: dir,
       dryRun: dryRun,
+      verbose: verbose,
       log: log,
     );
   }
 
   // ...........................................................................
   bool didFinishCalled = false;
+  bool? dryRun;
   @override
   void didFinish() {
     didFinishCalled = true;
@@ -63,39 +68,48 @@ class MyCommand extends CommandBase {
 // #############################################################################
 void main() {
   group('CommandBase', () {
-    test('should allow to create custom project processors', () async {
-      // Create a custom directory structure
-      final repos = createSampleRepos();
-      final root = repos[0].parent;
+    for (final dryRun in ['', '--dry-run', '--no-dry-run']) {
+      test('should allow to create custom project processors $dryRun',
+          () async {
+        // Create a custom directory structure
+        final repos = createSampleRepos();
+        final root = repos[0].parent;
+        final messages = <String>[];
+        final isDryRun = dryRun == '--dry-run' || dryRun == '';
 
-      // Create instance
-      final myCommand = MyCommand(log: print);
+        // Create instance
+        final myCommand = MyCommand(log: messages.add);
 
-      // Create a command runner
-      final runner = CommandRunner<void>(
-        'command-base',
-        'Description goes here.',
-      )..addCommand(myCommand);
+        // Create a command runner
+        final runner = CommandRunner<void>(
+          'command-base',
+          'Description goes here.',
+        )..addCommand(myCommand);
 
-      // Run the command
-      await runner.run(['my-command', '--input-dir', root.path]);
+        // Run the command
+        await runner.run(['my-command', '--repos', root.path, dryRun]);
 
-      // Sort the results
-      myCommand.processedProjects
-          .sort((a, b) => a.$2.path.compareTo(b.$2.path));
+        // Sort the results
+        myCommand.processedProjects
+            .sort((a, b) => a.$2.path.compareTo(b.$2.path));
 
-      // Check the results
-      expect(myCommand.startInpurtDir, root.path);
-      expect(myCommand.processedProjects.length, repos.length);
-      expect(myCommand.didFinishCalled, isTrue);
+        // Check the results
+        expect(myCommand.startInputDir, root.path);
+        expect(myCommand.processedProjects.length, repos.length);
+        expect(myCommand.didFinishCalled, isTrue);
+        expect(myCommand.dryRun, isDryRun);
 
-      // Were all projects processed?
-      expect(myCommand.processedProjects[0].$2.path, repos[0].path);
-      expect(myCommand.processedProjects[1].$2.path, repos[1].path);
-      expect(myCommand.processedProjects[2].$2.path, repos[2].path);
+        // Were all projects processed?
+        expect(myCommand.processedProjects[0].$2.path, repos[0].path);
+        expect(myCommand.processedProjects[1].$2.path, repos[1].path);
+        expect(myCommand.processedProjects[2].$2.path, repos[2].path);
 
-      // const CommandBase();
-      expect(true, isNotNull);
-    });
+        // Was dry run hint printed?
+        expect(hasLog(messages, myCommand.dryRunHint), isDryRun);
+
+        // const CommandBase();
+        expect(true, isNotNull);
+      });
+    }
   });
 }
