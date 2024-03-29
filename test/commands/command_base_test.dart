@@ -18,7 +18,7 @@ import '../test_helpers/create_sample_repos.dart';
 class MyCommand extends CommandBase {
   // ...........................................................................
   MyCommand({
-    required super.log,
+    required super.ggLog,
   }) : super(
           name: 'my-command',
           description: 'description',
@@ -30,7 +30,7 @@ class MyCommand extends CommandBase {
   @override
   Future<void> willStart({required String inputDir}) async {
     startInputDir = inputDir;
-    super.willStart(inputDir: inputDir);
+    await super.willStart(inputDir: inputDir);
   }
 
   // ...........................................................................
@@ -42,16 +42,16 @@ class MyCommand extends CommandBase {
     required Directory dir,
     required bool dryRun,
     required bool verbose,
-    required void Function(String p1) log,
+    required void Function(String p1) ggLog,
   }) async {
     this.dryRun = dryRun;
-    processedProjects.add((pubspec, dir, dryRun, log));
-    super.processProject(
+    processedProjects.add((pubspec, dir, dryRun, ggLog));
+    await super.processProject(
       pubspec: pubspec,
       dir: dir,
       dryRun: dryRun,
       verbose: verbose,
-      log: log,
+      ggLog: ggLog,
     );
   }
 
@@ -78,7 +78,7 @@ void main() {
         final isDryRun = dryRun == '--dry-run' || dryRun == '';
 
         // Create instance
-        final myCommand = MyCommand(log: messages.add);
+        final myCommand = MyCommand(ggLog: messages.add);
 
         // Create a command runner
         final runner = CommandRunner<void>(

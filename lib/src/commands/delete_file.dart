@@ -6,7 +6,7 @@
 
 import 'dart:io';
 
-import 'package:colorize/colorize.dart';
+import 'package:gg_console_colors/gg_console_colors.dart';
 import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:path/path.dart';
 import 'package:yaml_edit/yaml_edit.dart';
@@ -16,7 +16,7 @@ import 'package:yaml_edit/yaml_edit.dart';
 class DeleteFile extends CommandBase {
   /// Constructor
   DeleteFile({
-    required super.log,
+    required super.ggLog,
   }) : super(
           name: 'delete-file',
           description:
@@ -32,8 +32,8 @@ class DeleteFile extends CommandBase {
   }) async {
     _fileToBeDeleted = argResults?['source'] as String;
 
-    log('Deleting $_fileToBeDeleted from all repositories');
-    super.willStart(inputDir: inputDir);
+    ggLog('Deleting $_fileToBeDeleted from all repositories');
+    await super.willStart(inputDir: inputDir);
   }
 
   // ...........................................................................
@@ -43,21 +43,21 @@ class DeleteFile extends CommandBase {
     required Directory dir,
     required bool dryRun,
     required bool verbose,
-    required void Function(String p1) log,
+    required void Function(String p1) ggLog,
   }) async {
     // Define target file path
     final targetFilePath = canonicalize(join(dir.path, _fileToBeDeleted));
     final targetFile = File(targetFilePath);
 
     // Log file to be deleted
-    final message = Colorize(targetFile.path);
+    final message = targetFile.path;
 
     // File does not exists? Print file in dark gray
     if (!targetFile.existsSync() || dryRun) {
-      log('- ${message.darkGray()}');
+      ggLog('- ${darkGray(message)}');
     } else {
       targetFile.deleteSync();
-      log('- ${message.red()}');
+      ggLog('- ${red(message)}');
     }
   }
 

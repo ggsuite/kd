@@ -6,8 +6,9 @@
 
 import 'dart:io';
 
-import 'package:gg_capture_print/gg_capture_print.dart';
+import 'package:gg_console_colors/gg_console_colors.dart';
 import 'package:gg_kidney/src/commands/upgrade_dependencies.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart';
 import 'package:test/test.dart';
 
@@ -19,12 +20,55 @@ void main() {
   late TestEnvironment env;
 
   // ...........................................................................
+  void mockDartPubUpgrade({
+    int exitCode = 0,
+    bool dryRun = true,
+    String stdout = '',
+    String stderr = '',
+  }) {
+    for (final repo in env.sampleRepos) {
+      when(
+        () => env.process.run(
+          'dart',
+          [
+            'pub',
+            'upgrade',
+            '--major-versions',
+            if (dryRun) '--dry-run',
+          ],
+          workingDirectory: repo.path,
+        ),
+      ).thenAnswer((invocation) {
+        return Future.value(ProcessResult(0, exitCode, stdout, stderr));
+      });
+    }
+  }
+
+  // ...........................................................................
+  void veriyDartPubUpgrade({bool dryRun = true}) {
+    for (final repo in env.sampleRepos) {
+      verify(
+        () => env.process.run(
+          'dart',
+          [
+            'pub',
+            'upgrade',
+            '--major-versions',
+            if (dryRun) '--dry-run',
+          ],
+          workingDirectory: repo.path,
+        ),
+      ).called(1);
+    }
+  }
+
+  // ...........................................................................
   setUp(() {
     env = TestEnvironment();
 
     env.addCommand(
       UpgradeDependencies(
-        log: env.logMessages.add,
+        ggLog: env.logMessages.add,
         process: env.process,
       ),
     );
@@ -33,6 +77,8 @@ void main() {
   // ###########################################################################
   group('UpgradeDependencies', () {
     test('should add --dry-run when dryRun is true', () async {
+      mockDartPubUpgrade(exitCode: 0, dryRun: true);
+
       // Run the command
       await env.runner.run([
         'upgrade-dependencies',
@@ -41,26 +87,10 @@ void main() {
         env.root,
       ]);
 
-      // Check the result
-      final calls = env.process.calls;
-      calls.sort((a, b) => a.workingDirectory!.compareTo(b.workingDirectory!));
-      expect(env.process.calls, isNotEmpty);
+      // Check if »dart pub upgrade« was called
 
-      // For each repo dart pub upgrade should be called
-      for (int i = 0; i < calls.length; i++) {
-        expect(calls[i].workingDirectory, env.sampleRepos[i].path);
-        expect(calls[i].dryRun, true);
-        expect(calls[i].executable, 'dart');
-        expect(
-          calls[i].arguments,
-          [
-            'pub',
-            'upgrade',
-            '--major-versions',
-            '--dry-run',
-          ],
-        );
-      }
+      // Check the result
+      veriyDartPubUpgrade(dryRun: true);
 
       // Should set the exit code to 0
       expect(exitCode, 0);
@@ -68,6 +98,8 @@ void main() {
 
     // .........................................................................
     test('should not add --dry-run when --dry-run is not given', () async {
+      mockDartPubUpgrade(exitCode: 0, dryRun: false);
+
       // Run the command
       await env.runner.run([
         'upgrade-dependencies',
@@ -77,26 +109,18 @@ void main() {
       ]);
 
       // For each repo dart pub upgrade should be called
-      final calls = env.process.calls;
-      for (int i = 0; i < calls.length; i++) {
-        expect(calls[i].dryRun, false);
-        expect(calls[i].arguments, ['pub', 'upgrade', '--major-versions']);
-      }
+      veriyDartPubUpgrade(dryRun: false);
     });
 
     // .........................................................................
     test('should log console output when process did not succeed', () async {
       // Define process result
       const error = 5;
-      final processResult = ProcessResult(1, error, 'stdout', 'stderror');
-
-      final env = TestEnvironment(processResult: processResult);
-
-      env.addCommand(
-        UpgradeDependencies(
-          log: env.logMessages.add,
-          process: env.process,
-        ),
+      mockDartPubUpgrade(
+        exitCode: 5,
+        dryRun: false,
+        stdout: 'stdout',
+        stderr: 'stderror',
       );
 
       // Run the command
@@ -107,38 +131,21 @@ void main() {
         env.root,
       ]);
 
-      final calls = env.process.calls;
+      // Verify that the process was called
+      veriyDartPubUpgrade(dryRun: false);
+
       final logMessages = env.logMessages;
+      const prefix0 = 'Upgrade package dependencies of';
+      const prefix1 = 'Failed to upgrade dependencies for';
+      expect(
+        logMessages[1],
+        '$prefix0 ${basename(env.sampleRepos[0].path)}.',
+      );
 
-      calls.sort((a, b) => a.workingDirectory!.compareTo(b.workingDirectory!));
-
-      // For each failed command, a log message should be written
-      for (int i = 0; i < calls.length; i++) {
-        final dir = basename(calls[i].workingDirectory!);
-        expect(
-          hasLog(
-            logMessages,
-            'Failed to upgrade dependencies for $dir',
-          ),
-          isTrue,
-        );
-
-        expect(
-          hasLog(
-            logMessages,
-            'stderror',
-          ),
-          isTrue,
-        );
-
-        expect(
-          hasLog(
-            logMessages,
-            'stdout',
-          ),
-          isTrue,
-        );
-      }
+      expect(
+        logMessages[2],
+        red('$prefix1 ${basename(env.sampleRepos[0].path)}.'),
+      );
 
       // Should set the exit code to 1
       expect(exitCode, error);

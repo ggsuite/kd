@@ -4,7 +4,10 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:io';
+
 import 'package:gg_kidney/src/commands/open_with_vscode.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart';
 import 'package:test/test.dart';
 
@@ -19,7 +22,7 @@ void main() {
     env = TestEnvironment();
     env.addCommand(
       OpenWithVscode(
-        log: env.logMessages.add,
+        ggLog: env.logMessages.add,
         process: env.process,
       ),
     );
@@ -28,28 +31,37 @@ void main() {
   group('OpenWithVscode', () {
     test('should open all desired files with vscode', () {
       // Create sample repos
-      final sampleRepos = createSampleRepos();
-      final root = sampleRepos[0].parent.absolute.path;
+      final repos = createSampleRepos();
+      final root = repos[0].parent.absolute.path;
+      final pubspecFiles = [
+        join(repos[0].path, 'pubspec.yaml'),
+        join(repos[1].path, 'pubspec.yaml'),
+        join(repos[2].path, 'pubspec.yaml'),
+      ];
+
+      // Mock opening vscode
+      when(
+        () => env.process.run(
+          'code',
+          pubspecFiles,
+          workingDirectory: root,
+        ),
+      ).thenAnswer((invocation) {
+        return Future.value(ProcessResult(0, 0, '', ''));
+      });
 
       // Run the command
       env.runner
           .run(['open-with-vscode', '-r', root, '--file', 'pubspec.yaml']);
 
-      // Onle one call should be executed
-      expect(env.process.calls.length, 1);
-      final call = env.process.calls.first;
-
-      // The working directory should be the root
-      expect(call.workingDirectory, root);
-
-      // The executable should be open-with-vscode
-      expect(call.executable, 'code');
-
-      // The arguments should be the pubspec.yaml files in the repos
-      final files =
-          sampleRepos.map((repo) => join(repo.path, 'pubspec.yaml')).toList();
-      call.arguments.sort();
-      expect(call.arguments, files);
+      // Only one call should be executed
+      verify(
+        () => env.process.run(
+          'code',
+          pubspecFiles,
+          workingDirectory: root,
+        ),
+      ).called(1);
     });
 
     test('should write a log message if file has not been found', () {
@@ -61,7 +73,13 @@ void main() {
       env.runner.run(['open-with-vscode', '-r', root, '--file', 'xyzabc']);
 
       // Nothing should be called
-      expect(env.process.calls.length, 0);
+      verifyNever(
+        () => env.process.run(
+          'code',
+          any<List<String>>(),
+          workingDirectory: root,
+        ),
+      );
 
       // The working directory should be the root
       expect(env.logMessages, ['No xyzabc found.']);

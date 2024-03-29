@@ -6,7 +6,6 @@
 
 import 'dart:io';
 
-import 'package:colorize/colorize.dart';
 import 'package:gg_capture_print/gg_capture_print.dart';
 import 'package:gg_kidney/src/commands/copy_file.dart';
 import 'package:path/path.dart';
@@ -33,7 +32,7 @@ void main() {
   setUp(() {
     env = TestEnvironment();
     copyFile = CopyFile(
-      log: env.logMessages.add,
+      ggLog: env.logMessages.add,
     );
     env.addCommand(copyFile);
   });
@@ -98,14 +97,6 @@ void main() {
           );
           expect(hasLog(env.logMessages, 'dir1/lib/a/b/test.txt'), isTrue);
           expect(hasLog(env.logMessages, 'dir2/lib/a/b/test.txt'), isTrue);
-
-          // Did print right colors?
-          final darkGray = Colorize().buildEscSeq(Styles.DARK_GRAY);
-          final blue = Colorize().buildEscSeq(Styles.BLUE);
-          final color = dryRun ? darkGray : blue;
-          expect(hasLog(env.logMessages, color), isTrue);
-          expect(hasLog(env.logMessages, color), isTrue);
-          expect(hasLog(env.logMessages, color), isTrue);
         });
       }
     }

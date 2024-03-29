@@ -6,7 +6,7 @@
 
 import 'dart:io';
 
-import 'package:colorize/colorize.dart';
+import 'package:gg_console_colors/gg_console_colors.dart';
 import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:path/path.dart';
 import 'package:yaml_edit/yaml_edit.dart';
@@ -16,7 +16,7 @@ import 'package:yaml_edit/yaml_edit.dart';
 class CopyFile extends CommandBase {
   /// Constructor
   CopyFile({
-    required super.log,
+    required super.ggLog,
   }) : super(
           name: 'copy-file',
           description:
@@ -34,16 +34,16 @@ class CopyFile extends CommandBase {
     _outputPath = argResults?['output'] as String;
     _force = argResults?['force'] as bool;
 
-    log('Copying ${basename(_fileToBeCopied.path)} to $_outputPath');
-    super.willStart(inputDir: inputDir);
+    ggLog('Copying ${basename(_fileToBeCopied.path)} to $_outputPath');
+    await super.willStart(inputDir: inputDir);
 
     if (!_fileToBeCopied.existsSync()) {
       throw ArgumentError('The file to be copied does not exist.');
     }
 
     if (!_force) {
-      final forceStr = Colorize('--force').red().toString();
-      log(
+      final forceStr = red('--force');
+      ggLog(
         'Existing files will not be overwritten. Use $forceStr to overwrite.',
       );
     }
@@ -56,7 +56,7 @@ class CopyFile extends CommandBase {
     required Directory dir,
     required bool dryRun,
     required bool verbose,
-    required void Function(String p1) log,
+    required void Function(String p1) ggLog,
   }) async {
     // Define target file path
     final targetFile = File('${dir.path}/$_outputPath');
@@ -73,14 +73,14 @@ class CopyFile extends CommandBase {
     );
 
     // Log directory
-    final message = Colorize(targetFile.path);
+    late String message = targetFile.path;
 
     // Log gray when dry-run, blue, when not
     if (dryRun) {
-      log('- ${message.darkGray()}');
+      ggLog('- ${darkGray(message)}');
     } else {
       _fileToBeCopied.copySync(targetFile.path);
-      log('- ${message.blue()}');
+      ggLog('- ${blue(message)}');
     }
   }
 

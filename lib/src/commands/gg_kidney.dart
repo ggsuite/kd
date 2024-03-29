@@ -12,22 +12,23 @@ import 'package:gg_kidney/src/commands/open_with_vscode.dart';
 import 'package:gg_kidney/src/commands/run_shell_command.dart';
 import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
 import 'package:gg_kidney/src/commands/upgrade_dependencies.dart';
+import 'package:gg_log/gg_log.dart';
 
 /// The command line interface for GgKidney
 class GgKidney extends Command<dynamic> {
   /// Constructor
-  GgKidney({required this.log}) {
-    addSubcommand(UpdateDartSdk(log: log));
-    addSubcommand(UpgradeDependencies(log: log));
-    addSubcommand(OpenWithVscode(log: log));
-    addSubcommand(CopyFile(log: log));
-    addSubcommand(DeleteFile(log: log));
-    addSubcommand(CheckAll(log: log));
-    addSubcommand(RunShellCommand(log: log));
+  GgKidney({required this.ggLog}) {
+    addSubcommand(UpdateDartSdk(ggLog: ggLog));
+    addSubcommand(UpgradeDependencies(ggLog: ggLog));
+    addSubcommand(OpenWithVscode(ggLog: ggLog));
+    addSubcommand(CopyFile(ggLog: ggLog));
+    addSubcommand(DeleteFile(ggLog: ggLog));
+    addSubcommand(CheckAll(ggLog: ggLog));
+    addSubcommand(RunShellCommand(ggLog: ggLog));
   }
 
   /// The log function
-  final void Function(String message) log;
+  final GgLog ggLog;
 
   // ...........................................................................
   @override

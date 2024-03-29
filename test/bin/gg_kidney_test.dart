@@ -16,10 +16,10 @@ void main() {
     test('should allow to execute all commands of ggKidney', () async {
       final messages = <String>[];
       capturePrint(
-        log: messages.add,
+        ggLog: messages.add,
         code: () async {
           final args = <String>['--help'];
-          await runGgKidney(args: args, log: messages.add);
+          await runGgKidney(args: args, ggLog: messages.add);
           expect(hasLog(messages, 'update-dart-sdk'), isTrue);
           expect(hasLog(messages, 'upgrade-dependencies'), isTrue);
           expect(hasLog(messages, 'open-with-vscode'), isTrue);

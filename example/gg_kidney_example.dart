@@ -11,7 +11,7 @@ Future<void> main() async {
   const param = 'foo';
 
   final ggKidney = GgKidney(
-    log: (msg) {},
+    ggLog: (msg) {},
   );
 
   print('Executing with param $param');

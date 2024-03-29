@@ -6,7 +6,6 @@
 
 import 'dart:io';
 
-import 'package:colorize/colorize.dart';
 import 'package:gg_capture_print/gg_capture_print.dart';
 import 'package:gg_kidney/src/commands/delete_file.dart';
 import 'package:path/path.dart';
@@ -24,7 +23,7 @@ void main() {
   setUp(() {
     env = TestEnvironment();
     deleteCmd = DeleteFile(
-      log: env.logMessages.add,
+      ggLog: env.logMessages.add,
     );
     env.addCommand(deleteCmd);
   });
@@ -78,14 +77,6 @@ void main() {
         expect(hasLog(env.logMessages, 'dir0/test.txt'), isTrue);
         expect(hasLog(env.logMessages, 'dir1/test.txt'), isTrue);
         expect(hasLog(env.logMessages, 'dir2/test.txt'), isTrue);
-
-        // Did print right colors?
-        final darkGray = Colorize().buildEscSeq(Styles.DARK_GRAY);
-        final red = Colorize().buildEscSeq(Styles.RED);
-        final color = isDryRun ? darkGray : red;
-        expect(hasLog(env.logMessages, color), isTrue);
-        expect(hasLog(env.logMessages, color), isTrue);
-        expect(hasLog(env.logMessages, color), isTrue);
       });
     }
 

@@ -14,7 +14,7 @@ void main() {
   // #########################################################################
   group('GgKidney', () {
     test('should print a help if no param is given', () async {
-      final ggKidney = GgKidney(log: (msg) => messages.add(msg));
+      final ggKidney = GgKidney(ggLog: messages.add);
 
       final CommandRunner<void> runner = CommandRunner<void>(
         'ggKidney',

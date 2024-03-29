@@ -4,10 +4,9 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:colorize/colorize.dart';
+import 'package:gg_console_colors/gg_console_colors.dart';
 import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:gg_process/gg_process.dart';
 import 'package:path/path.dart';
@@ -18,7 +17,7 @@ import 'package:yaml_edit/yaml_edit.dart';
 class RunShellCommand extends CommandBase {
   /// Constructor
   RunShellCommand({
-    required super.log,
+    required super.ggLog,
     GgProcessWrapper? processWrapper,
   })  : _processWrapper = processWrapper ?? const GgProcessWrapper(),
         super(
@@ -39,8 +38,8 @@ class RunShellCommand extends CommandBase {
     _executable = parts.first;
     _arguments = parts.sublist(1);
 
-    log('Executing "$commandStr" in all repos.');
-    super.willStart(inputDir: inputDir);
+    ggLog('Executing "$commandStr" in all repos.');
+    await super.willStart(inputDir: inputDir);
   }
 
   // ...........................................................................
@@ -50,25 +49,23 @@ class RunShellCommand extends CommandBase {
     required Directory dir,
     required bool dryRun,
     required bool verbose,
-    required void Function(String p1) log,
+    required void Function(String p1) ggLog,
   }) async {
     // Log file to be deleted
-    final message = Colorize(basename(dir.path));
+    final message = basename(dir.path);
 
     // File does not exists? Print file in dark gray
     if (dryRun) {
-      log('- ✅ ${message.darkGray()}');
+      ggLog('- ✅ ${darkGray(message)}');
     } else {
       final result = await _processWrapper.run(
         _executable,
         _arguments,
         workingDirectory: dir.path,
-        stdoutEncoding: utf8,
-        stderrEncoding: utf8,
       );
 
       final symbol = result.exitCode == 0 ? '✅' : '❌';
-      log('- $symbol ${message.default_slyle()}');
+      ggLog('- $symbol $message');
       _logResult(result, verbose);
     }
   }
@@ -80,11 +77,11 @@ class RunShellCommand extends CommandBase {
       final stdOut = result.stdout as String;
 
       if (stdErr.isNotEmpty) {
-        log(Colorize(stdErr).darkGray().toString());
+        ggLog(darkGray(stdErr));
       }
 
       if (stdOut.isNotEmpty) {
-        log(Colorize(stdOut).darkGray().toString());
+        ggLog(darkGray(stdOut));
       }
     }
   }

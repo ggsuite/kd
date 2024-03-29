@@ -7,6 +7,7 @@
 import 'dart:io';
 
 import 'package:gg_kidney/src/tools/get_dart_repos.dart';
+import 'package:gg_log/gg_log.dart';
 import 'package:path/path.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
@@ -16,14 +17,14 @@ typedef ProjectProcessor = Future<void> Function({
   required Directory dir,
   required bool dryRun,
   required bool verbose,
-  required void Function(String) log,
+  required GgLog ggLog,
 });
 
 /// Processes all pubspec.yaml files in the given directory.
 Future<void> processProjects({
   required Directory directory,
   required ProjectProcessor process,
-  required void Function(String) log,
+  required GgLog ggLog,
   required bool verbose,
   bool dryRun = false,
 }) async {
@@ -31,7 +32,7 @@ Future<void> processProjects({
 
   if (dartRepos.isEmpty) {
     final dir = basename(directory.path);
-    log('No dart repositories found in $dir');
+    ggLog('No dart repositories found in $dir');
   }
 
   for (final dir in dartRepos) {
@@ -40,7 +41,7 @@ Future<void> processProjects({
     await process(
       pubspec: pubspec,
       dir: dir,
-      log: log,
+      ggLog: ggLog,
       dryRun: dryRun,
       verbose: verbose,
     );

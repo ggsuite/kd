@@ -24,14 +24,14 @@ void main() {
           required dir,
           required dryRun,
           required verbose,
-          required log,
+          required ggLog,
           required pubspec,
         }) async {
           pubspec.update(['dependencies', 'args'], '^4.5.6');
           final file = File('${dir.path}/pubspec.yaml');
           await file.writeAsString(pubspec.toString());
         },
-        log: messages.add,
+        ggLog: messages.add,
       );
 
       for (final dir in repos) {
@@ -51,10 +51,10 @@ void main() {
           required dir,
           required dryRun,
           required verbose,
-          required log,
+          required ggLog,
           required pubspec,
         }) async {},
-        log: messages.add,
+        ggLog: messages.add,
       );
       expect(messages.first, contains('No dart repositories found in '));
     });

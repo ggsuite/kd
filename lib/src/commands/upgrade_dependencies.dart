@@ -6,7 +6,7 @@
 
 import 'dart:io';
 
-import 'package:colorize/colorize.dart';
+import 'package:gg_console_colors/gg_console_colors.dart';
 import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:gg_process/gg_process.dart';
 import 'package:path/path.dart';
@@ -17,7 +17,7 @@ import 'package:yaml_edit/yaml_edit.dart';
 class UpgradeDependencies extends CommandBase {
   /// Constructor
   UpgradeDependencies({
-    required super.log,
+    required super.ggLog,
     this.process = const GgProcessWrapper(),
   }) : super(
           name: 'upgrade-dependencies',
@@ -28,7 +28,7 @@ class UpgradeDependencies extends CommandBase {
   Future<void> willStart({
     required String inputDir,
   }) async {
-    log('Upgrading package dependencies in $inputDir');
+    ggLog('Upgrading package dependencies in $inputDir');
   }
 
   // ...........................................................................
@@ -42,11 +42,11 @@ class UpgradeDependencies extends CommandBase {
     required Directory dir,
     required bool dryRun,
     required bool verbose,
-    void Function(String p1)? log,
+    void Function(String p1)? ggLog,
   }) async {
     // Write a log message
     final dirName = basename(dir.absolute.path.replaceAll(RegExp(r'/.$'), ''));
-    log?.call('Upgraded package dependencies of $dirName');
+    ggLog?.call('Upgrade package dependencies of $dirName.');
 
     // Execute dart pub upgrade
     final result = await process.run(
@@ -59,14 +59,12 @@ class UpgradeDependencies extends CommandBase {
       final details =
           result.stderr.toString().trim() + result.stdout.toString().trim();
 
-      log?.call(
-        Colorize('Failed to upgrade dependencies for $dirName.')
-            .red()
-            .toString(),
+      ggLog?.call(
+        red('Failed to upgrade dependencies for $dirName.'),
       );
 
-      log?.call(
-        Colorize(details).darkGray().toString(),
+      ggLog?.call(
+        darkGray(details),
       );
     }
 

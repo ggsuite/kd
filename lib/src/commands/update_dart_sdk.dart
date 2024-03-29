@@ -15,7 +15,7 @@ import 'package:yaml_edit/yaml_edit.dart';
 class UpdateDartSdk extends CommandBase {
   /// Constructor
   UpdateDartSdk({
-    required super.log,
+    required super.ggLog,
   }) : super(
           name: 'update-dart-sdk',
           description: 'Updates the Dart SDK.',
@@ -43,7 +43,7 @@ class UpdateDartSdk extends CommandBase {
     required String inputDir,
   }) async {
     _version = Version.parse(argResults?['min-version'] as String);
-    log('Updating the Dart SDK to version $_version in $inputDir');
+    ggLog('Updating the Dart SDK to version $_version in $inputDir');
   }
 
   // ...........................................................................
@@ -53,7 +53,7 @@ class UpdateDartSdk extends CommandBase {
     required Directory dir,
     required bool dryRun,
     required bool verbose,
-    void Function(String p1)? log,
+    void Function(String p1)? ggLog,
   }) async {
     // Compose the version string
     final majorVersion = _version.major;
@@ -64,7 +64,7 @@ class UpdateDartSdk extends CommandBase {
 
     // Write a log message
     final dirName = basename(dir.absolute.path.replaceAll(RegExp(r'/.$'), ''));
-    log?.call('Updated the Dart SDK version to "$versionString" in $dirName');
+    ggLog?.call('Updated the Dart SDK version to "$versionString" in $dirName');
 
     if (!dryRun) {
       final file = File('${dir.path}/pubspec.yaml');

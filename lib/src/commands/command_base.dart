@@ -7,15 +7,16 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:colorize/colorize.dart';
+import 'package:gg_console_colors/gg_console_colors.dart';
 import 'package:gg_kidney/src/tools/process_projects.dart' as pp;
+import 'package:gg_log/gg_log.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
 /// Works through all repositories and updates the Dart SDK.
 abstract class CommandBase extends Command<dynamic> {
   /// Constructor
   CommandBase({
-    required this.log,
+    required this.ggLog,
     required this.name,
     required this.description,
   }) {
@@ -23,7 +24,7 @@ abstract class CommandBase extends Command<dynamic> {
   }
 
   /// The log function
-  final void Function(String message) log;
+  final GgLog ggLog;
 
   @override
   final String name;
@@ -64,7 +65,7 @@ abstract class CommandBase extends Command<dynamic> {
   }) async {
     // Print dry-run hint
     if (argResults?['dry-run'] as bool) {
-      log(dryRunHint);
+      ggLog(dryRunHint);
     }
   }
 
@@ -75,18 +76,17 @@ abstract class CommandBase extends Command<dynamic> {
     required Directory dir,
     required bool dryRun,
     required bool verbose,
-    required void Function(String) log,
+    required GgLog ggLog,
   }) =>
       Future.value();
 
   // ...........................................................................
   /// A hint that is printed if dry-run is executed.
   String get dryRunHint {
-    final msgPart0 =
-        Colorize('Dry-run: Nothing will change. ').yellow().toString();
-    final msgPart1 = Colorize('Run with ').yellow().toString();
-    final msgPart2 = Colorize('--no-dry-run').red().toString();
-    final msgPart3 = Colorize(' to apply changes.').yellow().toString();
+    final msgPart0 = yellow('Dry-run: Nothing will change. ');
+    final msgPart1 = yellow('Run with ');
+    final msgPart2 = red('--no-dry-run');
+    final msgPart3 = yellow(' to apply changes.');
 
     return '$msgPart0 $msgPart1$msgPart2$msgPart3';
   }
@@ -111,7 +111,7 @@ abstract class CommandBase extends Command<dynamic> {
       directory: Directory(inputDir),
       process: processProject,
       dryRun: dryRun,
-      log: log,
+      ggLog: ggLog,
       verbose: verbose,
     );
 

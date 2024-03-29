@@ -13,8 +13,7 @@ import 'package:gg_process/gg_process.dart';
 import 'create_sample_repos.dart';
 
 class TestEnvironment {
-  TestEnvironment({ProcessResult? processResult})
-      : process = GgProcessWrapperMock(runResult: processResult);
+  TestEnvironment() : process = MockGgProcessWrapper();
   final List<String> logMessages = [];
   final List<Directory> sampleRepos = createSampleRepos();
   String get root => sampleRepos.first.parent.path;
@@ -23,5 +22,5 @@ class TestEnvironment {
     runner.addCommand(command);
   }
 
-  final GgProcessWrapperMock process;
+  final MockGgProcessWrapper process;
 }

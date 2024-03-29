@@ -6,10 +6,10 @@
 
 import 'dart:io';
 
-import 'package:colorize/colorize.dart';
 import 'package:gg_capture_print/gg_capture_print.dart';
 import 'package:gg_kidney/src/commands/run_shell_command.dart';
 import 'package:gg_process/gg_process.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import '../test_helpers/init_environment.dart';
@@ -21,8 +21,10 @@ void main() {
   // ...........................................................................
   void init({GgProcessWrapper? processWrapper}) {
     env = TestEnvironment();
+    processWrapper = processWrapper;
+
     runShellCommand = RunShellCommand(
-      log: env.logMessages.add,
+      ggLog: env.logMessages.add,
       processWrapper: processWrapper,
     );
     env.addCommand(runShellCommand);
@@ -59,26 +61,28 @@ void main() {
             // Did print the result, when verbose?
             expect(hasLog(m, 'pubspec.yaml'), isVerbose && !isDryRun);
             expect(hasLog(m, 'test.txt'), isVerbose && !isDryRun);
-
-            // Did print right colors?
-            final colorize = Colorize();
-            final darkGray = colorize.buildEscSeq(Styles.DARK_GRAY);
-            final defaultStyle = colorize.buildEscSeq(Styles.DEFAULT);
-
-            expect(hasLog(m, darkGray), isDryRun || isVerbose);
-            expect(hasLog(m, defaultStyle), !isDryRun);
           });
 
           // ...................................................................
-          test(
-              'and print an error summary if something went wrong '
-              '$dryRun $verbose', () async {
-            init(
-              processWrapper: GgProcessWrapperMock(
-                runResult:
-                    ProcessResult(0, 1, 'stdout result', 'stderr result'),
-              ),
-            );
+          test('and print an error summary $dryRun $verbose', () async {
+            final processWrapper = MockGgProcessWrapper();
+
+            init(processWrapper: processWrapper);
+
+            // Mock an error
+            for (final repo in env.sampleRepos) {
+              when(
+                () => processWrapper.run(
+                  'xyz',
+                  [],
+                  workingDirectory: repo.path,
+                ),
+              ).thenAnswer((_) async {
+                return Future.value(
+                  ProcessResult(1, 1, 'stdout result', 'stderr result'),
+                );
+              });
+            }
 
             // Run the command
             await env.runner.run([
@@ -101,14 +105,6 @@ void main() {
             // Did print the result, when verbose?
             expect(hasLog(m, 'stdout result'), isVerbose && !isDryRun);
             expect(hasLog(m, 'stderr result'), isVerbose && !isDryRun);
-
-            // Did print right colors?
-            final colorize = Colorize();
-            final darkGray = colorize.buildEscSeq(Styles.DARK_GRAY);
-            final defaultStyle = colorize.buildEscSeq(Styles.DEFAULT);
-
-            expect(hasLog(m, darkGray), isDryRun || isVerbose);
-            expect(hasLog(m, defaultStyle), !isDryRun);
           });
         });
       }

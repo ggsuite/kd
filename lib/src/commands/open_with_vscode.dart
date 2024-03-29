@@ -16,7 +16,7 @@ import 'package:path/path.dart';
 class OpenWithVscode extends CommandBase {
   /// Constructor
   OpenWithVscode({
-    required super.log,
+    required super.ggLog,
     this.process = const GgProcessWrapper(),
   }) : super(
           name: 'open-with-vscode',
@@ -44,12 +44,12 @@ class OpenWithVscode extends CommandBase {
 
     // Log if no file has found
     if (fileList.isEmpty) {
-      log('No $fileToBeOpened found.');
+      ggLog('No $fileToBeOpened found.');
       return;
     }
 
     // Open the files with vscode
-    process.run('code', fileList, workingDirectory: inputDir);
+    await process.run('code', fileList, workingDirectory: inputDir);
   }
 
   // ...........................................................................

@@ -7,7 +7,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:gg_console_colors/gg_console_colors.dart';
 import 'package:gg_kidney/src/commands/command_base.dart';
+import 'package:gg_log/gg_log.dart';
 import 'package:gg_process/gg_process.dart';
 import 'package:path/path.dart';
 import 'package:yaml_edit/yaml_edit.dart';
@@ -17,7 +19,7 @@ import 'package:yaml_edit/yaml_edit.dart';
 class CheckAll extends CommandBase {
   /// Constructor
   CheckAll({
-    required super.log,
+    required super.ggLog,
     this.processWrapper = const GgProcessWrapper(),
   }) : super(
           name: 'check-all',
@@ -27,15 +29,16 @@ class CheckAll extends CommandBase {
   // ...........................................................................
   @override
   Future<void> willStart({required String inputDir}) async {
-    super.willStart(inputDir: inputDir);
+    await super.willStart(inputDir: inputDir);
 
     // Check if ggCheck is installed
-    // coverage:ignore-start
-    final result = await processWrapper.run('ggCheck', ['--version']);
+    final result = await processWrapper.run('gg', ['--version']);
     if (result.exitCode != 0) {
-      throw Exception('ggCheck is not installed.');
+      throw Exception(
+        '${red('gg is not installed. Run ')}'
+        '${blue('»dart pub global activate gg«')}',
+      );
     }
-    // coverage:ignore-end
   }
 
   // ...........................................................................
@@ -45,7 +48,7 @@ class CheckAll extends CommandBase {
     required Directory dir,
     required bool dryRun,
     required bool verbose,
-    void Function(String p1)? log,
+    GgLog? ggLog,
   }) async {
     final dirName = basename(dir.path);
     final verbose = argResults?['verbose'] as bool;
@@ -54,23 +57,23 @@ class CheckAll extends CommandBase {
       return;
     }
 
-    log?.call('⌛️ $dirName');
+    ggLog?.call('⌛️ $dirName');
 
     final p = await processWrapper.start(
-      'ggCheck',
-      ['all'],
+      'gg',
+      ['can', 'commit'],
       workingDirectory: dir.path,
     );
 
     if (verbose) {
       p.stdout.listen((event) {
         final message = utf8.decode(event);
-        log?.call(message);
+        ggLog?.call(message);
       });
 
       p.stderr.listen((event) {
         final message = utf8.decode(event);
-        log?.call(message);
+        ggLog?.call(message);
       });
     }
 
@@ -79,10 +82,10 @@ class CheckAll extends CommandBase {
     final result = await p.exitCode;
     const cr = '\x1b[1A\x1b[2K';
     if (result != 0) {
-      log?.call('$cr❌ $dirName');
+      ggLog?.call('$cr❌ $dirName');
       exitCode = result;
     } else {
-      log?.call('$cr✅ $dirName');
+      ggLog?.call('$cr✅ $dirName');
     }
   }
 

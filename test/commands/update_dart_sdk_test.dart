@@ -33,7 +33,7 @@ void main() {
   // ...........................................................................
   void initRunner() {
     messages = <String>[];
-    final updateDartSdk = UpdateDartSdk(log: messages.add);
+    final updateDartSdk = UpdateDartSdk(ggLog: messages.add);
 
     runner = CommandRunner<void>(
       'ggKidney',

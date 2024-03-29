@@ -9,19 +9,21 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:fake_async/fake_async.dart';
+import 'package:gg_console_colors/gg_console_colors.dart';
 import 'package:gg_kidney/src/commands/check_all.dart';
 import 'package:gg_process/gg_process.dart';
-import 'package:path/path.dart';
 import 'package:test/test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../test_helpers/create_sample_repos.dart';
 
 void main() {
   group('CheckAll', () {
     final cwd = Directory.current.path;
-    late GgProcessMock lastProcess;
-    late CallArguments lastCallArgs;
+    late GgProcessWrapper processWrapper;
+    final ggCanCommit = <GgFakeProcess>[];
     late CommandRunner<void> runner;
+    late List<Directory> repos;
     late Directory root;
     late List<String> messages = [];
 
@@ -31,27 +33,53 @@ void main() {
     });
 
     // .........................................................................
+    void mockGgVersionResult({int exitCode = 0}) {
+      when(
+        () => processWrapper.run(
+          'gg',
+          ['--version'],
+        ),
+      ).thenAnswer(
+        (_) => Future.value(ProcessResult(0, exitCode, 'gg 1.2.3', '')),
+      );
+    }
+
+    // .........................................................................
+    void mockGgCanCommit() {
+      for (final repo in repos) {
+        final process = GgFakeProcess();
+        ggCanCommit.add(process);
+
+        when(
+          () => processWrapper.start(
+            'gg',
+            ['can', 'commit'],
+            workingDirectory: repo.path,
+          ),
+        ).thenAnswer((_) => Future.value(process));
+      }
+    }
+
+    // .........................................................................
     void init() {
       // Clear messages
       messages.clear();
+      ggCanCommit.clear();
 
       // Create folders
-      final repos = createSampleRepos();
+      repos = createSampleRepos();
       root = repos.first.parent;
 
+      // Init process wrapper
+      processWrapper = MockGgProcessWrapper();
+
       // Create a process fake result
-      final wrapper = GgProcessWrapperMock(
-        onStart: (call) {
-          lastProcess = GgProcessMock();
-          lastCallArgs = call;
-          return lastProcess;
-        },
-      );
+      mockGgCanCommit();
 
       // Create command
       final checkAll = CheckAll(
-        log: messages.add,
-        processWrapper: wrapper,
+        ggLog: messages.add,
+        processWrapper: processWrapper,
       );
 
       runner = CommandRunner('test', 'test')..addCommand(checkAll);
@@ -61,9 +89,11 @@ void main() {
       Directory.current = cwd;
     });
 
+    // .........................................................................
     test('should log result', () {
       fakeAsync((fake) {
         init();
+        mockGgVersionResult(exitCode: 0);
 
         // Run the command
         var finished = false;
@@ -85,22 +115,26 @@ void main() {
         var i = 0;
 
         // gg_check all should be called for the first folder
-        expect(lastCallArgs.executable, 'ggCheck');
-        expect(lastCallArgs.arguments, ['all']);
-        expect(basename(lastCallArgs.workingDirectory!), 'dir0');
+        verify(
+          () => processWrapper.start(
+            'gg',
+            ['can', 'commit'],
+            workingDirectory: repos[0].path,
+          ),
+        ).called(1);
 
         // Start message should be logged
         expect(messages[i++], '⌛️ dir0');
 
         // stdout and stderr should be logged
-        lastProcess.pushToStdout.add('dir0 is ok.');
+        ggCanCommit[0].pushToStdout.add('dir0 is ok.');
         fake.flushMicrotasks();
         expect(messages[i++], 'dir0 is ok.');
-        lastProcess.pushToStderr.add('dir0 has some error.');
+        ggCanCommit[0].pushToStderr.add('dir0 has some error.');
         expect(messages[i++], 'dir0 has some error.');
 
         // Finish the process for dir0
-        lastProcess.exit(0);
+        ggCanCommit[0].exit(0);
         fake.flushMicrotasks();
 
         // Success should be logged
@@ -108,22 +142,26 @@ void main() {
 
         // .............
         // Process dir 1
-        expect(lastCallArgs.executable, 'ggCheck');
-        expect(lastCallArgs.arguments, ['all']);
-        expect(basename(lastCallArgs.workingDirectory!), 'dir1');
+        verify(
+          () => processWrapper.start(
+            'gg',
+            ['can', 'commit'],
+            workingDirectory: repos[1].path,
+          ),
+        ).called(1);
 
         // Start message should be logged
         expect(messages[i++], '⌛️ dir1');
 
         // stdout and stderr should be logged
-        lastProcess.pushToStdout.add('dir1 is ok.');
+        ggCanCommit[1].pushToStdout.add('dir1 is ok.');
         fake.flushMicrotasks();
         expect(messages[i++], 'dir1 is ok.');
-        lastProcess.pushToStderr.add('dir1 has some error.');
+        ggCanCommit[1].pushToStderr.add('dir1 has some error.');
         expect(messages[i++], 'dir1 has some error.');
 
         // Finish the process for dir1 with fail
-        lastProcess.exit(1);
+        ggCanCommit[1].exit(1);
         fake.flushMicrotasks();
 
         // Faile should be logged
@@ -132,22 +170,26 @@ void main() {
         // .............
         // Process dir 2
         fake.flushMicrotasks();
-        expect(lastCallArgs.executable, 'ggCheck');
-        expect(lastCallArgs.arguments, ['all']);
-        expect(basename(lastCallArgs.workingDirectory!), 'dir2');
+        verify(
+          () => processWrapper.start(
+            'gg',
+            ['can', 'commit'],
+            workingDirectory: repos[2].path,
+          ),
+        ).called(1);
 
         // Start message should be logged
         expect(messages[i++], contains('⌛️ dir2'));
 
         // stdout and stderr should be logged
-        lastProcess.pushToStdout.add('dir2 is ok.');
+        ggCanCommit[2].pushToStdout.add('dir2 is ok.');
         fake.flushMicrotasks();
         expect(messages[i++], 'dir2 is ok.');
-        lastProcess.pushToStderr.add('dir2 has some error.');
+        ggCanCommit[2].pushToStderr.add('dir2 has some error.');
         expect(messages[i++], 'dir2 has some error.');
 
         // Finish the process for dir2
-        lastProcess.exit(0);
+        ggCanCommit[2].exit(0);
         fake.flushMicrotasks();
 
         // Success should be logged
@@ -157,6 +199,33 @@ void main() {
         // After all processes have finished
         fake.flushMicrotasks();
         expect(finished, isTrue);
+      });
+    });
+
+    test('should install gg when not already done', () {
+      fakeAsync((fake) {
+        init();
+        mockGgVersionResult(exitCode: 1);
+
+        late String exception;
+
+        runner.run([
+          'check-all',
+          '--repos',
+          root.path,
+          '--no-dry-run',
+          '--verbose',
+        ]).catchError((Object e) {
+          exception = e.toString();
+        });
+
+        fake.flushMicrotasks();
+
+        expect(
+            exception,
+            'Exception: '
+            '${red('gg is not installed. Run ')}'
+            '${blue('»dart pub global activate gg«')}');
       });
     });
   });
