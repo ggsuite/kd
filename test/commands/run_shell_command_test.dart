@@ -37,32 +37,59 @@ void main() {
           final isDryRun = dryRun == '--dry-run' || dryRun == '';
           final isVerbose = verbose == '--verbose';
 
-          // ...................................................................
-          test('eg. "ls -la" $dryRun $verbose', () async {
-            init(processWrapper: const GgProcessWrapper());
+          group('with simple shell commands', () {
+            // .................................................................
+            test('eg. "ls -la" $dryRun $verbose', () async {
+              init(processWrapper: const GgProcessWrapper());
 
-            // Run the command
-            await env.runner.run([
-              'run-shell-command',
-              '--repos=${env.root}',
-              '--command=ls -la',
-              dryRun,
-              verbose,
-            ]);
+              // Run the command
+              await env.runner.run([
+                'run-shell-command',
+                '--repos=${env.root}',
+                '--command=ls -la',
+                dryRun,
+                verbose,
+              ]);
 
-            final m = env.logMessages;
+              final m = env.logMessages;
 
-            // Did print an success message? No matter if dry-run or not.
-            expect(hasLog(m, 'Executing "ls -la" in all repos.'), isTrue);
-            expect(hasLog(m, RegExp(r'- ✅.+dir0')), isTrue);
-            expect(hasLog(m, RegExp(r'- ✅.+dir1')), isTrue);
-            expect(hasLog(m, RegExp(r'- ✅.+dir2')), isTrue);
+              // Did print an success message? No matter if dry-run or not.
+              expect(hasLog(m, 'Executing "ls -la" in all repos.'), isTrue);
+              expect(hasLog(m, RegExp(r'- ✅.+dir0')), isTrue);
+              expect(hasLog(m, RegExp(r'- ✅.+dir1')), isTrue);
+              expect(hasLog(m, RegExp(r'- ✅.+dir2')), isTrue);
 
-            // Did print the result, when verbose?
-            expect(hasLog(m, 'pubspec.yaml'), isVerbose && !isDryRun);
-            expect(hasLog(m, 'test.txt'), isVerbose && !isDryRun);
+              // Did print the result, when verbose?
+              expect(hasLog(m, 'pubspec.yaml'), isVerbose && !isDryRun);
+              expect(hasLog(m, 'test.txt'), isVerbose && !isDryRun);
+            });
           });
 
+          group('with shell commands containing parentheses', () {
+            test('e.g. "echo "Hello World«" $dryRun $verbose', () async {
+              init(processWrapper: const GgProcessWrapper());
+
+              // Run the command
+              await env.runner.run([
+                'run-shell-command',
+                '--repos=${env.root}',
+                '--command=echo "Hello World"',
+                dryRun,
+                verbose,
+              ]);
+
+              final m = env.logMessages;
+
+              // Did print an success message? No matter if dry-run or not.
+              expect(
+                hasLog(m, 'Executing "echo "Hello World"" in all repos.'),
+                isTrue,
+              );
+              expect(hasLog(m, RegExp(r'- ✅.+dir0')), isTrue);
+              expect(hasLog(m, RegExp(r'- ✅.+dir1')), isTrue);
+              expect(hasLog(m, RegExp(r'- ✅.+dir2')), isTrue);
+            });
+          });
           // ...................................................................
           test('and print an error summary $dryRun $verbose', () async {
             final processWrapper = MockGgProcessWrapper();

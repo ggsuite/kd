@@ -34,7 +34,7 @@ class RunShellCommand extends CommandBase {
     required String inputDir,
   }) async {
     final commandStr = argResults?['command'] as String;
-    final parts = commandStr.split(' ');
+    final parts = _splitKeepingQuotes(commandStr);
     _executable = parts.first;
     _arguments = parts.sublist(1);
 
@@ -68,6 +68,15 @@ class RunShellCommand extends CommandBase {
       ggLog('- $symbol $message');
       _logResult(result, verbose);
     }
+  }
+
+  // ...........................................................................
+  List<String> _splitKeepingQuotes(String input) {
+    RegExp regex = RegExp(r'''((?:[^ "']|"[^"]*"|'[^']*')+)''');
+    return regex
+        .allMatches(input)
+        .map((m) => m.group(0)!.replaceAll('"', ''))
+        .toList();
   }
 
   // ...........................................................................
