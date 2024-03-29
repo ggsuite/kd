@@ -1,6 +1,6 @@
 name: gg_kidney
-description: GgKidney performs maintenance tasks on our various repositories.
-version: 1.0.1
+description: gg_kidney performs maintenance tasks on our various repositories.
+version: 1.0.2
 repository: https://github.com/inlavigo/gg_kidney.git
 
 environment:
