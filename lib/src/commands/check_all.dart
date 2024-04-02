@@ -32,7 +32,7 @@ class CheckAll extends CommandBase {
     await super.willStart(inputDir: inputDir);
 
     // Check if ggCheck is installed
-    final result = await processWrapper.run('gg', ['--version']);
+    final result = await processWrapper.run('gg', ['--help']);
     if (result.exitCode != 0) {
       throw Exception(
         '${red('gg is not installed. Run ')}'

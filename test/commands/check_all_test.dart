@@ -37,7 +37,7 @@ void main() {
       when(
         () => processWrapper.run(
           'gg',
-          ['--version'],
+          ['--help'],
         ),
       ).thenAnswer(
         (_) => Future.value(ProcessResult(0, exitCode, 'gg 1.2.3', '')),

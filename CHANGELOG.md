@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.3
+
+- Update dependencies
+
 ## 1.0.2
 
 - Fix: Parentheses in shell commands broke run-shell-command
