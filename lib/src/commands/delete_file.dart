@@ -66,7 +66,7 @@ class DeleteFile extends CommandBase {
     argParser.addOption(
       'source',
       abbr: 's',
-      help: 'The file to be copied to all repos.',
+      help: 'The file to be deleted from all repos.',
       mandatory: true,
     );
   }
