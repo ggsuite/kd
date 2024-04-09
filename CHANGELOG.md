@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Removed
+
+- 'Pipline: Disable cache'
+
 ## [1.0.3] - 2024-04-09
 
 ### Changed
@@ -20,4 +26,5 @@
 
 - Initial version.
 
+[Unreleased]: https://github.com/inlavigo/gg_kidney/compare/1.0.3...HEAD
 [1.0.3]: https://github.com/inlavigo/gg_kidney/compare/1.0.2...1.0.3
