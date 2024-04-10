@@ -28,7 +28,7 @@ class CopyFile extends CommandBase {
   // ...........................................................................
   @override
   Future<void> willStart({
-    required String inputDir,
+    required Directory inputDir,
   }) async {
     _fileToBeCopied = File(absolute(((argResults?['source'] as String))));
     _outputPath = argResults?['output'] as String;

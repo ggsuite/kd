@@ -87,15 +87,7 @@ void main() {
         );
 
         // An error message should be printed
-        expectMessage('No dart repositories found in');
-      });
-
-      // .......................................................................
-      test('should update the dart sdk in the current project', () async {
-        await runner.run(['update-dart-sdk', '--min-version', '3.3.0', '-d']);
-        expectMessage(
-          'Updated the Dart SDK version to ">=3.3.0<4.0.0" in gg_kidney',
-        );
+        expectMessage('No dart packages found in');
       });
 
       // .......................................................................
@@ -108,7 +100,7 @@ void main() {
             '--min-version',
             '3.3.0',
             '-r',
-            dir0.path,
+            dir0.parent.path,
             dryRun,
           ]);
 

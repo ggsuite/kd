@@ -7,7 +7,7 @@
 import 'dart:io';
 
 import 'package:gg_kidney/src/commands/command_base.dart';
-import 'package:gg_kidney/src/tools/get_dart_repos.dart';
+import 'package:gg_local_package_dependencies/gg_local_package_dependencies.dart';
 import 'package:gg_process/gg_process.dart';
 import 'package:path/path.dart';
 
@@ -18,7 +18,9 @@ class OpenWithVscode extends CommandBase {
   OpenWithVscode({
     required super.ggLog,
     this.process = const GgProcessWrapper(),
-  }) : super(
+    ProcessingList? processingList,
+  })  : _processingList = processingList ?? ProcessingList(ggLog: ggLog),
+        super(
           name: 'open-with-vscode',
           description: 'Edit project files with vscode.',
         ) {
@@ -27,15 +29,19 @@ class OpenWithVscode extends CommandBase {
 
   @override
   Future<void> willStart({
-    required String inputDir,
+    required Directory inputDir,
   }) async {
     // Read file option from args
     final fileToBeOpened = argResults?['file'] as String;
     // Get a list of all projects in inputDir
-    final dartRepos = getDartRepos(root: Directory(inputDir));
+    final dartRepos = await _processingList.get(
+      directory: inputDir,
+      ggLog: ggLog,
+    );
+
     final fileList = <String>[];
-    for (final dir in dartRepos) {
-      final filePath = join(dir.path, fileToBeOpened);
+    for (final repo in dartRepos) {
+      final filePath = join(repo.directory.path, fileToBeOpened);
       final file = File(filePath);
       if (file.existsSync()) {
         fileList.add(file.path);
@@ -49,12 +55,16 @@ class OpenWithVscode extends CommandBase {
     }
 
     // Open the files with vscode
-    await process.run('code', fileList, workingDirectory: inputDir);
+    await process.run('code', fileList, workingDirectory: inputDir.path);
   }
 
   // ...........................................................................
   /// The method
   final GgProcessWrapper process;
+
+  // ######################
+  // Private
+  // ######################
 
   // ...........................................................................
   void _addArgs() {
@@ -65,4 +75,7 @@ class OpenWithVscode extends CommandBase {
       mandatory: true,
     );
   }
+
+  // ...........................................................................
+  final ProcessingList _processingList;
 }

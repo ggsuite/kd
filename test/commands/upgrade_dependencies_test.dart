@@ -139,12 +139,12 @@ void main() {
       const prefix1 = 'Failed to upgrade dependencies for';
       expect(
         logMessages[1],
-        '$prefix0 ${basename(env.sampleRepos[0].path)}.',
+        '$prefix0 ${basename(env.sampleRepos[2].path)}.',
       );
 
       expect(
         logMessages[2],
-        red('$prefix1 ${basename(env.sampleRepos[0].path)}.'),
+        red('$prefix1 ${basename(env.sampleRepos[2].path)}.'),
       );
 
       // Should set the exit code to 1

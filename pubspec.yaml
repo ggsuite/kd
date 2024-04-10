@@ -11,11 +11,13 @@ dependencies:
   gg_args: ^1.1.8
   gg_capture_print: ^1.0.2
   gg_console_colors: ^2.0.2
+  gg_local_package_dependencies: ^1.0.0
   gg_log: ^1.0.0
   gg_process: ^1.0.0
   gg_project_root: ^1.0.0
   path: ^1.8.0
   pub_semver: ^2.1.4
+  pubspec_parse: ^1.2.3
   yaml_edit: ^2.1.1
 
 dev_dependencies:

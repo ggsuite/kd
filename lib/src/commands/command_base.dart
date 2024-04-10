@@ -8,8 +8,9 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:gg_console_colors/gg_console_colors.dart';
-import 'package:gg_kidney/src/tools/process_projects.dart' as pp;
+import 'package:gg_local_package_dependencies/gg_local_package_dependencies.dart';
 import 'package:gg_log/gg_log.dart';
+import 'package:path/path.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
 /// Works through all repositories and updates the Dart SDK.
@@ -19,7 +20,8 @@ abstract class CommandBase extends Command<dynamic> {
     required this.ggLog,
     required this.name,
     required this.description,
-  }) {
+    ProcessingList? processingList,
+  }) : _processingList = processingList ?? ProcessingList(ggLog: ggLog) {
     _addArgs();
   }
 
@@ -31,6 +33,13 @@ abstract class CommandBase extends Command<dynamic> {
 
   @override
   final String description;
+
+  // ######################
+  // Private
+  // ######################
+
+  // ...........................................................................
+  final ProcessingList _processingList;
 
   // ...........................................................................
   void _addArgs() {
@@ -61,7 +70,7 @@ abstract class CommandBase extends Command<dynamic> {
   // ...........................................................................
   /// Override this method to do some work before the run method is called.
   Future<void> willStart({
-    required String inputDir,
+    required Directory inputDir,
   }) async {
     // Print dry-run hint
     if (argResults?['dry-run'] as bool) {
@@ -99,21 +108,35 @@ abstract class CommandBase extends Command<dynamic> {
   @override
   Future<void> run() async {
     // Read the command line arguments
-    final inputDir = argResults?['repos'] as String;
+    final inputDir = Directory(argResults?['repos'] as String);
     final dryRun = argResults?['dry-run'] as bool;
     final verbose = argResults?['verbose'] as bool;
 
     // Anounce the start
     await willStart(inputDir: inputDir);
 
-    // Iterate through all dart repositories found in the current directly
-    await pp.processProjects(
-      directory: Directory(inputDir),
-      process: processProject,
-      dryRun: dryRun,
+    // Iterate through all dart repositories found in the current directory
+    final processingList = await _processingList.get(
+      directory: inputDir,
       ggLog: ggLog,
-      verbose: verbose,
     );
+
+    if (processingList.isEmpty) {
+      final dir = basename(inputDir.path);
+      ggLog('No dart packages found in $dir.');
+    }
+
+    for (final node in processingList) {
+      final pubspecFile = File(join(node.directory.path, 'pubspec.yaml'));
+      final pubspec = YamlEditor(pubspecFile.readAsStringSync());
+      await processProject(
+        pubspec: pubspec,
+        dir: node.directory,
+        dryRun: dryRun,
+        verbose: verbose,
+        ggLog: ggLog,
+      );
+    }
 
     // Anounce the end
     didFinish();

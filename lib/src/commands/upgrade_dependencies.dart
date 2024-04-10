@@ -26,7 +26,7 @@ class UpgradeDependencies extends CommandBase {
 
   @override
   Future<void> willStart({
-    required String inputDir,
+    required Directory inputDir,
   }) async {
     ggLog('Upgrading package dependencies in $inputDir');
   }

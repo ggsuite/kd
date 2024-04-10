@@ -20,6 +20,7 @@ class CheckAll extends CommandBase {
   /// Constructor
   CheckAll({
     required super.ggLog,
+    super.processingList,
     this.processWrapper = const GgProcessWrapper(),
   }) : super(
           name: 'check-all',
@@ -28,7 +29,7 @@ class CheckAll extends CommandBase {
 
   // ...........................................................................
   @override
-  Future<void> willStart({required String inputDir}) async {
+  Future<void> willStart({required Directory inputDir}) async {
     await super.willStart(inputDir: inputDir);
 
     // Check if ggCheck is installed

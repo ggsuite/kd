@@ -40,7 +40,7 @@ class UpdateDartSdk extends CommandBase {
   // ...........................................................................
   @override
   Future<void> willStart({
-    required String inputDir,
+    required Directory inputDir,
   }) async {
     _version = Version.parse(argResults?['min-version'] as String);
     ggLog('Updating the Dart SDK to version $_version in $inputDir');

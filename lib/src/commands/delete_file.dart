@@ -28,7 +28,7 @@ class DeleteFile extends CommandBase {
   // ...........................................................................
   @override
   Future<void> willStart({
-    required String inputDir,
+    required Directory inputDir,
   }) async {
     _fileToBeDeleted = argResults?['source'] as String;
 

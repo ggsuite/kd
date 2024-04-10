@@ -31,7 +31,7 @@ class RunShellCommand extends CommandBase {
   // ...........................................................................
   @override
   Future<void> willStart({
-    required String inputDir,
+    required Directory inputDir,
   }) async {
     final commandStr = argResults?['command'] as String;
     final parts = _splitKeepingQuotes(commandStr);

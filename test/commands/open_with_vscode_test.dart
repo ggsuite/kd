@@ -29,14 +29,14 @@ void main() {
   });
 
   group('OpenWithVscode', () {
-    test('should open all desired files with vscode', () {
+    test('should open all desired files with vscode', () async {
       // Create sample repos
       final repos = createSampleRepos();
       final root = repos[0].parent.absolute.path;
       final pubspecFiles = [
-        join(repos[0].path, 'pubspec.yaml'),
-        join(repos[1].path, 'pubspec.yaml'),
         join(repos[2].path, 'pubspec.yaml'),
+        join(repos[1].path, 'pubspec.yaml'),
+        join(repos[0].path, 'pubspec.yaml'),
       ];
 
       // Mock opening vscode
@@ -51,7 +51,7 @@ void main() {
       });
 
       // Run the command
-      env.runner
+      await env.runner
           .run(['open-with-vscode', '-r', root, '--file', 'pubspec.yaml']);
 
       // Only one call should be executed
@@ -64,13 +64,14 @@ void main() {
       ).called(1);
     });
 
-    test('should write a log message if file has not been found', () {
+    test('should write a log message if file has not been found', () async {
       // Create sample repos
       final sampleRepos = createSampleRepos();
       final root = sampleRepos[0].parent.absolute.path;
 
       // Run the command
-      env.runner.run(['open-with-vscode', '-r', root, '--file', 'xyzabc']);
+      await env.runner
+          .run(['open-with-vscode', '-r', root, '--file', 'xyzabc']);
 
       // Nothing should be called
       verifyNever(

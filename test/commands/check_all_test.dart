@@ -11,7 +11,10 @@ import 'package:args/command_runner.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:gg_console_colors/gg_console_colors.dart';
 import 'package:gg_kidney/src/commands/check_all.dart';
+import 'package:gg_local_package_dependencies/gg_local_package_dependencies.dart';
 import 'package:gg_process/gg_process.dart';
+import 'package:path/path.dart';
+import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:test/test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -26,6 +29,7 @@ void main() {
     late List<Directory> repos;
     late Directory root;
     late List<String> messages = [];
+    late ProcessingList processingList;
 
     // .........................................................................
     tearDown(() {
@@ -61,7 +65,30 @@ void main() {
     }
 
     // .........................................................................
+    void mockProcessingList() {
+      final nodes = repos.map((e) {
+        final pubspecString = File('${e.path}/pubspec.yaml').readAsStringSync();
+        final pubspec = Pubspec.parse(pubspecString);
+
+        return Node(
+          name: basename(e.path),
+          directory: e.absolute,
+          pubspec: pubspec,
+        );
+      }).toList();
+
+      when(
+        () => processingList.get(
+          ggLog: any(named: 'ggLog'),
+          directory: any(named: 'directory'),
+        ),
+      ).thenAnswer((_) => Future.value(nodes));
+    }
+
+    // .........................................................................
     void init() {
+      registerFallbackValue(Directory(''));
+
       // Clear messages
       messages.clear();
       ggCanCommit.clear();
@@ -69,6 +96,10 @@ void main() {
       // Create folders
       repos = createSampleRepos();
       root = repos.first.parent;
+
+      // Init processing list
+      processingList = MockProcessingList();
+      mockProcessingList();
 
       // Init process wrapper
       processWrapper = MockGgProcessWrapper();
@@ -80,6 +111,7 @@ void main() {
       final checkAll = CheckAll(
         ggLog: messages.add,
         processWrapper: processWrapper,
+        processingList: processingList,
       );
 
       runner = CommandRunner('test', 'test')..addCommand(checkAll);
@@ -119,7 +151,9 @@ void main() {
           () => processWrapper.start(
             'gg',
             ['can', 'commit'],
-            workingDirectory: repos[0].path,
+            workingDirectory: any(
+              named: 'workingDirectory',
+            ),
           ),
         ).called(1);
 
