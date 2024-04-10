@@ -12,6 +12,7 @@ import 'package:gg_kidney/src/commands/open_with_vscode.dart';
 import 'package:gg_kidney/src/commands/run_shell_command.dart';
 import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
 import 'package:gg_kidney/src/commands/upgrade_dependencies.dart';
+import 'package:gg_local_package_dependencies/gg_local_package_dependencies.dart';
 import 'package:gg_log/gg_log.dart';
 
 /// The command line interface for GgKidney
@@ -25,6 +26,7 @@ class GgKidney extends Command<dynamic> {
     addSubcommand(DeleteFile(ggLog: ggLog));
     addSubcommand(CheckAll(ggLog: ggLog));
     addSubcommand(RunShellCommand(ggLog: ggLog));
+    addSubcommand(Graph(ggLog: ggLog));
   }
 
   /// The log function

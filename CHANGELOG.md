@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Graph command to print the dependency graph
+
 ### Changed
 
 - Process dependent packages first
