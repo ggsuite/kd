@@ -9,6 +9,7 @@
 ### Changed
 
 - Process dependent packages first
+- the way details are printed on run-shell-command
 
 ## [1.0.4] - 2024-04-09
 

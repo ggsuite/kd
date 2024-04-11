@@ -85,12 +85,22 @@ class RunShellCommand extends CommandBase {
       final stdErr = result.stderr as String;
       final stdOut = result.stdout as String;
 
-      if (stdErr.isNotEmpty) {
-        ggLog(darkGray(stdErr));
-      }
+      final newLine = stdOut.isNotEmpty && stdErr.isNotEmpty ? '\n' : '';
+      var msg = '$stdOut$newLine$stdErr'.replaceAll('✅', '✓').replaceAll(
+            '❌',
+            '✗',
+          );
 
-      if (stdOut.isNotEmpty) {
-        ggLog(darkGray(stdOut));
+      var lines = msg.split('\n');
+      msg = lines.map((e) {
+        final indentation =
+            '${e.contains('✓') || e.contains('✗') ? '' : '  '}    ';
+
+        return '$indentation$e';
+      }).join('\n');
+
+      if (msg.isNotEmpty) {
+        ggLog(darkGray(msg));
       }
     }
   }
