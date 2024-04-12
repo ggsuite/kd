@@ -11,6 +11,10 @@
 - Process dependent packages first
 - the way details are printed on run-shell-command
 
+### Removed
+
+- dependency to gg\_install\_gg, remove ./check script
+
 ## [1.0.4] - 2024-04-09
 
 ### Removed
