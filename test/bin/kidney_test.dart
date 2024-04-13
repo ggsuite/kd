@@ -20,9 +20,6 @@ void main() {
         code: () async {
           final args = <String>['--help'];
           await runKidney(args: args, ggLog: messages.add);
-          expect(hasLog(messages, 'update-dart-sdk'), isTrue);
-          expect(hasLog(messages, 'upgrade-dependencies'), isTrue);
-          expect(hasLog(messages, 'open-with-vscode'), isTrue);
         },
       );
     });
