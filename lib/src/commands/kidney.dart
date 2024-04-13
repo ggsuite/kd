@@ -5,20 +5,20 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:args/command_runner.dart';
-import 'package:gg_kidney/src/commands/maintain.dart';
-import 'package:gg_kidney/src/commands/copy_file.dart';
-import 'package:gg_kidney/src/commands/delete_file.dart';
-import 'package:gg_kidney/src/commands/open_with_vscode.dart';
-import 'package:gg_kidney/src/commands/run_shell_command.dart';
-import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
-import 'package:gg_kidney/src/commands/upgrade_dependencies.dart';
+import 'package:kidney/src/commands/maintain.dart';
+import 'package:kidney/src/commands/copy_file.dart';
+import 'package:kidney/src/commands/delete_file.dart';
+import 'package:kidney/src/commands/open_with_vscode.dart';
+import 'package:kidney/src/commands/run_shell_command.dart';
+import 'package:kidney/src/commands/update_dart_sdk.dart';
+import 'package:kidney/src/commands/upgrade_dependencies.dart';
 import 'package:gg_local_package_dependencies/gg_local_package_dependencies.dart';
 import 'package:gg_log/gg_log.dart';
 
-/// The command line interface for GgKidney
-class GgKidney extends Command<dynamic> {
+/// The command line interface for Kidney
+class Kidney extends Command<dynamic> {
   /// Constructor
-  GgKidney({required this.ggLog}) {
+  Kidney({required this.ggLog}) {
     addSubcommand(UpdateDartSdk(ggLog: ggLog));
     addSubcommand(UpgradeDependencies(ggLog: ggLog));
     addSubcommand(OpenWithVscode(ggLog: ggLog));

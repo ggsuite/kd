@@ -16,7 +16,7 @@ import 'package:gg_console_colors/gg_console_colors.dart';
 
 // #############################################################################
 void main() {
-  const exe = 'gg_kidney';
+  const exe = 'kidney';
 
   print('Installing $exe globally.');
 

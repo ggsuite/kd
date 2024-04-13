@@ -5,16 +5,16 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:args/command_runner.dart';
-import 'package:gg_kidney/gg_kidney.dart';
+import 'package:kidney/kidney.dart';
 import 'package:test/test.dart';
 
 void main() {
   final messages = <String>[];
 
   // #########################################################################
-  group('GgKidney', () {
+  group('Kidney', () {
     test('should print a help if no param is given', () async {
-      final ggKidney = GgKidney(ggLog: messages.add);
+      final ggKidney = Kidney(ggLog: messages.add);
 
       final CommandRunner<void> runner = CommandRunner<void>(
         'ggKidney',

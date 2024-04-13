@@ -6,7 +6,7 @@
 
 import 'dart:io';
 
-import 'package:gg_kidney/src/commands/command_base.dart';
+import 'package:kidney/src/commands/command_base.dart';
 import 'package:path/path.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml_edit/yaml_edit.dart';

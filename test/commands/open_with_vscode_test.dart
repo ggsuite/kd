@@ -6,7 +6,7 @@
 
 import 'dart:io';
 
-import 'package:gg_kidney/src/commands/open_with_vscode.dart';
+import 'package:kidney/src/commands/open_with_vscode.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart';
 import 'package:test/test.dart';

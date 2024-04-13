@@ -8,7 +8,7 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:gg_capture_print/gg_capture_print.dart';
-import 'package:gg_kidney/src/commands/update_dart_sdk.dart';
+import 'package:kidney/src/commands/update_dart_sdk.dart';
 import 'package:test/test.dart';
 
 import '../test_helpers/create_sample_repos.dart';

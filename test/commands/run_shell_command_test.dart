@@ -7,7 +7,7 @@
 import 'dart:io';
 
 import 'package:gg_capture_print/gg_capture_print.dart';
-import 'package:gg_kidney/src/commands/run_shell_command.dart';
+import 'package:kidney/src/commands/run_shell_command.dart';
 import 'package:gg_process/gg_process.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';

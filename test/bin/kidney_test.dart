@@ -7,10 +7,10 @@
 import 'package:gg_capture_print/gg_capture_print.dart';
 import 'package:test/test.dart';
 
-import '../../bin/gg_kidney.dart';
+import '../../bin/kidney.dart';
 
 void main() {
-  group('runGgKidney(args, log)', () {
+  group('runKidney(args, log)', () {
     // #########################################################################
 
     test('should allow to execute all commands of ggKidney', () async {
@@ -19,7 +19,7 @@ void main() {
         ggLog: messages.add,
         code: () async {
           final args = <String>['--help'];
-          await runGgKidney(args: args, ggLog: messages.add);
+          await runKidney(args: args, ggLog: messages.add);
           expect(hasLog(messages, 'update-dart-sdk'), isTrue);
           expect(hasLog(messages, 'upgrade-dependencies'), isTrue);
           expect(hasLog(messages, 'open-with-vscode'), isTrue);

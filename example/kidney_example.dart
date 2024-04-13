@@ -5,12 +5,12 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'package:gg_kidney/gg_kidney.dart';
+import 'package:kidney/kidney.dart';
 
 Future<void> main() async {
   const param = 'foo';
 
-  final ggKidney = GgKidney(
+  final ggKidney = Kidney(
     ggLog: (msg) {},
   );
 

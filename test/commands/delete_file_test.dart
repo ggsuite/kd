@@ -7,7 +7,7 @@
 import 'dart:io';
 
 import 'package:gg_capture_print/gg_capture_print.dart';
-import 'package:gg_kidney/src/commands/delete_file.dart';
+import 'package:kidney/src/commands/delete_file.dart';
 import 'package:path/path.dart';
 import 'package:test/test.dart';
 

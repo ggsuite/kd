@@ -1,7 +1,7 @@
-name: gg_kidney
-description: gg_kidney performs maintenance tasks on our various repositories.
+name: kidney
+description: kidney performs maintenance tasks on our various repositories.
 version: 1.0.5
-repository: https://github.com/inlavigo/gg_kidney.git
+repository: https://github.com/inlavigo/kidney.git
 
 environment:
   sdk: ">=3.3.0<4.0.0"
@@ -28,4 +28,4 @@ dev_dependencies:
   test: ^1.24.0
 
 executables:
-  gg_kidney:
+  kidney:

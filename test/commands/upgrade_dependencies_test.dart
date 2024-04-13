@@ -7,7 +7,7 @@
 import 'dart:io';
 
 import 'package:gg_console_colors/gg_console_colors.dart';
-import 'package:gg_kidney/src/commands/upgrade_dependencies.dart';
+import 'package:kidney/src/commands/upgrade_dependencies.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart';
 import 'package:test/test.dart';

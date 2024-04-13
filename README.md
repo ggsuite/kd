@@ -1,11 +1,11 @@
-# gg_kidney
+# kidney
 
-GgKidney performs maintenance tasks on our various repositories.
+Kidney performs maintenance tasks on our various repositories.
 
 ## Execute ggKidney
 
 ```bash
- ./bin/gg_kidney.dart
+ ./bin/kidney.dart
 ```
 
 ## Install and run ggKidney

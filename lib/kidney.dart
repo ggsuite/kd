@@ -6,4 +6,4 @@
 
 library;
 
-export 'src/commands/gg_kidney.dart';
+export 'src/commands/kidney.dart';

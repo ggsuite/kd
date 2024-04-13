@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:gg_console_colors/gg_console_colors.dart';
-import 'package:gg_kidney/src/commands/command_base.dart';
+import 'package:kidney/src/commands/command_base.dart';
 import 'package:gg_log/gg_log.dart';
 import 'package:gg_process/gg_process.dart';
 import 'package:path/path.dart';

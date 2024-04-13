@@ -6,10 +6,10 @@
 
   "configurations": [
     {
-      "name": "Run GgKidney",
+      "name": "Run Kidney",
       "type": "dart",
       "request": "launch",
-      "program": "${workspaceFolder}/bin/gg_kidney.dart",
+      "program": "${workspaceFolder}/bin/kidney.dart",
       "args": ["ggKidney", "--param", "value"],
       "console": "debugConsole"
     },
