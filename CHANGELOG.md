@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.5] - 2024-04-13
 
 ### Added
 
@@ -11,6 +11,7 @@
 - Process dependent packages first
 - the way details are printed on run-shell-command
 - Turned check\_all into maintain
+- The way errors are printed while running shell command
 
 ### Removed
 
@@ -42,6 +43,6 @@
 
 - Initial version.
 
-[Unreleased]: https://github.com/inlavigo/gg_kidney/compare/1.0.4...HEAD
+[1.0.5]: https://github.com/inlavigo/gg_kidney/compare/1.0.4...1.0.5
 [1.0.4]: https://github.com/inlavigo/gg_kidney/compare/1.0.3...1.0.4
 [1.0.3]: https://github.com/inlavigo/gg_kidney/compare/1.0.2...1.0.3

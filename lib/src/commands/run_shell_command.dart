@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:gg_console_colors/gg_console_colors.dart';
 import 'package:gg_kidney/src/commands/command_base.dart';
 import 'package:gg_process/gg_process.dart';
+import 'package:gg_status_printer/gg_status_printer.dart';
 import 'package:path/path.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
@@ -58,15 +59,23 @@ class RunShellCommand extends CommandBase {
     if (dryRun) {
       ggLog('- ✅ ${darkGray(message)}');
     } else {
-      final result = await _processWrapper.run(
-        _executable,
-        _arguments,
-        workingDirectory: dir.path,
-      );
+      await GgStatusPrinter<ProcessResult>(
+        ggLog: ggLog,
+        message: message,
+      ).logTask(
+        task: () async {
+          final result = await _processWrapper.run(
+            _executable,
+            _arguments,
+            workingDirectory: dir.path,
+          );
 
-      final symbol = result.exitCode == 0 ? '✅' : '❌';
-      ggLog('- $symbol $message');
-      _logResult(result, verbose);
+          _logResult(result, verbose);
+
+          return result;
+        },
+        success: (result) => result.exitCode == 0,
+      );
     }
   }
 

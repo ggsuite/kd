@@ -55,9 +55,9 @@ void main() {
 
               // Did print an success message? No matter if dry-run or not.
               expect(hasLog(m, 'Executing "ls -la" in all repos.'), isTrue);
-              expect(hasLog(m, RegExp(r'- ✅.+dir0')), isTrue);
-              expect(hasLog(m, RegExp(r'- ✅.+dir1')), isTrue);
-              expect(hasLog(m, RegExp(r'- ✅.+dir2')), isTrue);
+              expect(hasLog(m, RegExp(r'✅.+dir0')), isTrue);
+              expect(hasLog(m, RegExp(r'✅.+dir1')), isTrue);
+              expect(hasLog(m, RegExp(r'✅.+dir2')), isTrue);
 
               // Did print the result, when verbose?
               expect(hasLog(m, 'pubspec.yaml'), isVerbose && !isDryRun);
@@ -85,9 +85,9 @@ void main() {
                 hasLog(m, 'Executing "echo "Hello World"" in all repos.'),
                 isTrue,
               );
-              expect(hasLog(m, RegExp(r'- ✅.+dir0')), isTrue);
-              expect(hasLog(m, RegExp(r'- ✅.+dir1')), isTrue);
-              expect(hasLog(m, RegExp(r'- ✅.+dir2')), isTrue);
+              expect(hasLog(m, RegExp(r'✅.+dir0')), isTrue);
+              expect(hasLog(m, RegExp(r'✅.+dir1')), isTrue);
+              expect(hasLog(m, RegExp(r'✅.+dir2')), isTrue);
             });
           });
           // ...................................................................
@@ -125,9 +125,9 @@ void main() {
             // Process result above was defined 1.
             // Did print an faile message? No matter if dry-run or not.
             expect(hasLog(m, 'Executing "xyz" in all repos.'), isTrue);
-            expect(hasLog(m, RegExp(r'- ❌.+dir0')), !isDryRun);
-            expect(hasLog(m, RegExp(r'- ❌.+dir1')), !isDryRun);
-            expect(hasLog(m, RegExp(r'- ❌.+dir2')), !isDryRun);
+            expect(hasLog(m, RegExp(r'❌.+dir0')), !isDryRun);
+            expect(hasLog(m, RegExp(r'❌.+dir1')), !isDryRun);
+            expect(hasLog(m, RegExp(r'❌.+dir2')), !isDryRun);
 
             // Did print the result, when verbose?
             expect(hasLog(m, 'stdout result'), isVerbose && !isDryRun);
