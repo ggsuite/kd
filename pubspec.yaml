@@ -1,6 +1,6 @@
 name: kidney
 description: kidney applies shell commands to multiple dart and flutter packages at once.
-version: 2.0.1
+version: 2.0.2
 repository: https://github.com/inlavigo/kidney.git
 
 environment:
