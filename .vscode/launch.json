@@ -10,7 +10,7 @@
       "type": "dart",
       "request": "launch",
       "program": "${workspaceFolder}/bin/kidney.dart",
-      "args": ["ggKidney", "--param", "value"],
+      "args": ["kidney", "--verbose", "--apply", "gg", "do", "commit"],
       "console": "debugConsole"
     },
     {

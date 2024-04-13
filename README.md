@@ -2,23 +2,23 @@
 
 Kidney performs maintenance tasks on our various repositories.
 
-## Execute ggKidney
+## Execute kidney
 
 ```bash
  ./bin/kidney.dart
 ```
 
-## Install and run ggKidney
+## Install and run kidney
 
 ```bash
 ./install.dart
-ggKidney
+kidney
 ```
 
 ## Show available subcommands
 
 ```bash
-ggKidney -h
+kidney -h
 ```
 
 ## Execute checks

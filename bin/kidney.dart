@@ -5,7 +5,6 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'package:gg_args/gg_args.dart';
 import 'package:kidney/kidney.dart';
 import 'package:gg_log/gg_log.dart';
 
@@ -13,16 +12,15 @@ import 'package:gg_log/gg_log.dart';
 Future<void> runKidney({
   required List<String> args,
   required GgLog ggLog,
-}) =>
-    GgCommandRunner(
-      ggLog: ggLog,
-      command: Kidney(ggLog: ggLog),
-    ).run(args: args);
+}) async {
+  try {
+    await Kidney(ggLog: ggLog).run(args);
+  } catch (e) {
+    ggLog(e.toString());
+  }
+}
 
 // .............................................................................
-Future<void> main(List<String> args) async {
-  await runKidney(
-    args: args,
-    ggLog: print,
-  );
-}
+// coverage:ignore-start
+Future<void> main(List<String> args) => runKidney(args: args, ggLog: print);
+// coverage:ignore-end
