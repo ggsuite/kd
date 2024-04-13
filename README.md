@@ -1,28 +1,60 @@
 # kidney
 
-Kidney performs maintenance tasks on our various repositories.
+Use kidney to apply shell commands to all dart packages in your directory:
 
-## Execute kidney
-
-```bash
- ./bin/kidney.dart
+```
+kidney . --apply --verbose ls
 ```
 
-## Install and run kidney
+## Install
 
 ```bash
-./install.dart
+ dart pub global activate kidney
+```
+
+## Examples
+
+| Kidney part    | Command part   | Explenation                      |
+| -------------- | -------------- | -------------------------------- |
+| `kidney . -av` | `ls`           | Executes ls in all packages      |
+| `kidney . -a`  | `flutter test` | Run the tests in all directories |
+| `kidney .`     | `ls`           | Start a dry run                  |
+
+## Show help
+
+```bash
 kidney
 ```
 
-## Show available subcommands
+## Run tests on all packages
+
+Change into your dev directory containing dart packages.
+
+Execute the following command:
 
 ```bash
-kidney -h
+kidney . -a flutter test
 ```
 
-## Execute checks
+## Show the directory contents
+
+To see the folder contents, add the `-v` option and call `ls`:
 
 ```bash
-./check
+kidney . -av ls
 ```
+
+## Do a dry-run
+
+Remove the `-a` option, to perform a dry run of the desired command:
+
+```bash
+kidney . -a ls
+```
+
+## All options
+
+| Long        | Short | Explenation                                 |
+| ----------- | ----- | ------------------------------------------- |
+| `--apply`   | `-a`  | Without that option only a dry-run is done. |
+| `--verbose` | `-v`  | Prints CLI output of the commands           |
