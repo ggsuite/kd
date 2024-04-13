@@ -10,6 +10,7 @@
 
 - Process dependent packages first
 - the way details are printed on run-shell-command
+- Turned check\_all into maintain
 
 ### Removed
 

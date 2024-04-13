@@ -10,7 +10,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:gg_console_colors/gg_console_colors.dart';
-import 'package:gg_kidney/src/commands/check_all.dart';
+import 'package:gg_kidney/src/commands/maintain.dart';
 import 'package:gg_local_package_dependencies/gg_local_package_dependencies.dart';
 import 'package:gg_process/gg_process.dart';
 import 'package:path/path.dart';
@@ -21,10 +21,10 @@ import 'package:mocktail/mocktail.dart';
 import '../test_helpers/create_sample_repos.dart';
 
 void main() {
-  group('CheckAll', () {
+  group('Maintain', () {
     final cwd = Directory.current.path;
     late GgProcessWrapper processWrapper;
-    final ggCanCommit = <GgFakeProcess>[];
+    final ggDoMaintain = <GgFakeProcess>[];
     late CommandRunner<void> runner;
     late List<Directory> repos;
     late Directory root;
@@ -52,12 +52,12 @@ void main() {
     void mockGgCanCommit() {
       for (final repo in repos) {
         final process = GgFakeProcess();
-        ggCanCommit.add(process);
+        ggDoMaintain.add(process);
 
         when(
           () => processWrapper.start(
             'gg',
-            ['can', 'commit'],
+            ['do', 'maintain'],
             workingDirectory: repo.path,
           ),
         ).thenAnswer((_) => Future.value(process));
@@ -91,7 +91,7 @@ void main() {
 
       // Clear messages
       messages.clear();
-      ggCanCommit.clear();
+      ggDoMaintain.clear();
 
       // Create folders
       repos = createSampleRepos();
@@ -108,13 +108,13 @@ void main() {
       mockGgCanCommit();
 
       // Create command
-      final checkAll = CheckAll(
+      final maintain = Maintain(
         ggLog: messages.add,
         processWrapper: processWrapper,
         processingList: processingList,
       );
 
-      runner = CommandRunner('test', 'test')..addCommand(checkAll);
+      runner = CommandRunner('test', 'test')..addCommand(maintain);
     }
 
     tearDown(() {
@@ -131,11 +131,12 @@ void main() {
         var finished = false;
 
         runner.run([
-          'check-all',
+          'maintain',
           '--repos',
           root.path,
           '--no-dry-run',
           '--verbose',
+          '--no-exit-on-error',
         ]).then((value) => finished = true);
 
         // Wait a little bit
@@ -150,7 +151,7 @@ void main() {
         verify(
           () => processWrapper.start(
             'gg',
-            ['can', 'commit'],
+            ['do', 'maintain'],
             workingDirectory: any(
               named: 'workingDirectory',
             ),
@@ -161,14 +162,14 @@ void main() {
         expect(messages[i++], '⌛️ dir0');
 
         // stdout and stderr should be logged
-        ggCanCommit[0].pushToStdout.add('dir0 is ok.');
+        ggDoMaintain[0].pushToStdout.add('dir0 is ok.');
         fake.flushMicrotasks();
         expect(messages[i++], 'dir0 is ok.');
-        ggCanCommit[0].pushToStderr.add('dir0 has some error.');
+        ggDoMaintain[0].pushToStderr.add('dir0 has some error.');
         expect(messages[i++], 'dir0 has some error.');
 
         // Finish the process for dir0
-        ggCanCommit[0].exit(0);
+        ggDoMaintain[0].exit(0);
         fake.flushMicrotasks();
 
         // Success should be logged
@@ -179,7 +180,7 @@ void main() {
         verify(
           () => processWrapper.start(
             'gg',
-            ['can', 'commit'],
+            ['do', 'maintain'],
             workingDirectory: repos[1].path,
           ),
         ).called(1);
@@ -188,17 +189,17 @@ void main() {
         expect(messages[i++], '⌛️ dir1');
 
         // stdout and stderr should be logged
-        ggCanCommit[1].pushToStdout.add('dir1 is ok.');
+        ggDoMaintain[1].pushToStdout.add('dir1 is ok.');
         fake.flushMicrotasks();
         expect(messages[i++], 'dir1 is ok.');
-        ggCanCommit[1].pushToStderr.add('dir1 has some error.');
+        ggDoMaintain[1].pushToStderr.add('dir1 has some error.');
         expect(messages[i++], 'dir1 has some error.');
 
         // Finish the process for dir1 with fail
-        ggCanCommit[1].exit(1);
+        ggDoMaintain[1].exit(1);
         fake.flushMicrotasks();
 
-        // Faile should be logged
+        // Fail should be logged
         expect(messages[i++], contains('❌ dir1'));
 
         // .............
@@ -207,7 +208,7 @@ void main() {
         verify(
           () => processWrapper.start(
             'gg',
-            ['can', 'commit'],
+            ['do', 'maintain'],
             workingDirectory: repos[2].path,
           ),
         ).called(1);
@@ -216,14 +217,14 @@ void main() {
         expect(messages[i++], contains('⌛️ dir2'));
 
         // stdout and stderr should be logged
-        ggCanCommit[2].pushToStdout.add('dir2 is ok.');
+        ggDoMaintain[2].pushToStdout.add('dir2 is ok.');
         fake.flushMicrotasks();
         expect(messages[i++], 'dir2 is ok.');
-        ggCanCommit[2].pushToStderr.add('dir2 has some error.');
+        ggDoMaintain[2].pushToStderr.add('dir2 has some error.');
         expect(messages[i++], 'dir2 has some error.');
 
         // Finish the process for dir2
-        ggCanCommit[2].exit(0);
+        ggDoMaintain[2].exit(0);
         fake.flushMicrotasks();
 
         // Success should be logged
@@ -244,11 +245,12 @@ void main() {
         late String exception;
 
         runner.run([
-          'check-all',
+          'maintain',
           '--repos',
           root.path,
           '--no-dry-run',
           '--verbose',
+          '--no-exit-on-error',
         ]).catchError((Object e) {
           exception = e.toString();
         });
@@ -260,6 +262,46 @@ void main() {
             'Exception: '
             '${red('gg is not installed. Run ')}'
             '${blue('»dart pub global activate gg«')}');
+      });
+    });
+
+    group('should exit on the first error', () {
+      void runTest([List<String> extraOptions = const []]) {
+        fakeAsync((fake) {
+          init();
+          mockGgVersionResult(exitCode: 0);
+
+          // Run the command
+
+          late String exception;
+
+          runner.run([
+            'maintain',
+            '--repos',
+            root.path,
+            '--no-dry-run',
+            '--verbose',
+            ...extraOptions,
+          ]).onError((error, stackTrace) {
+            exception = error.toString();
+          });
+
+          // Wait a little bit
+          fake.flushMicrotasks();
+
+          ggDoMaintain[0].exit(1);
+          fake.flushMicrotasks();
+
+          expect(exception, contains('❌ dir0'));
+        });
+      }
+
+      test('when called without --exit-on-error', () async {
+        runTest([]);
+      });
+
+      test('when called with --exit-on-error', () async {
+        runTest(['--exit-on-error']);
       });
     });
   });

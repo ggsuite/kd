@@ -16,16 +16,18 @@ import 'package:yaml_edit/yaml_edit.dart';
 
 // #############################################################################
 /// Works through all repositories and updates the Dart SDK.
-class CheckAll extends CommandBase {
+class Maintain extends CommandBase {
   /// Constructor
-  CheckAll({
+  Maintain({
     required super.ggLog,
     super.processingList,
     this.processWrapper = const GgProcessWrapper(),
   }) : super(
-          name: 'check-all',
-          description: 'Run gg_check all on all repos.',
-        );
+          name: 'maintain',
+          description: 'Run »gg do maintain« all on all repos.',
+        ) {
+    _addArgs();
+  }
 
   // ...........................................................................
   @override
@@ -49,8 +51,11 @@ class CheckAll extends CommandBase {
     required Directory dir,
     required bool dryRun,
     required bool verbose,
+    bool? exitOnError,
     GgLog? ggLog,
   }) async {
+    exitOnError ??= argResults?['exit-on-error'] as bool? ?? true;
+
     final dirName = basename(dir.path);
     final verbose = argResults?['verbose'] as bool;
 
@@ -62,7 +67,7 @@ class CheckAll extends CommandBase {
 
     final p = await processWrapper.start(
       'gg',
-      ['can', 'commit'],
+      ['do', 'maintain'],
       workingDirectory: dir.path,
     );
 
@@ -78,13 +83,15 @@ class CheckAll extends CommandBase {
       });
     }
 
-    // Todo: Don't print carriage return when running on github
-
     final result = await p.exitCode;
     const cr = '\x1b[1A\x1b[2K';
     if (result != 0) {
-      ggLog?.call('$cr❌ $dirName');
-      exitCode = result;
+      final message = '❌ $dirName';
+      if (exitOnError) {
+        throw Exception(message);
+      } else {
+        ggLog?.call(message);
+      }
     } else {
       ggLog?.call('$cr✅ $dirName');
     }
@@ -93,4 +100,15 @@ class CheckAll extends CommandBase {
   // ...........................................................................
   /// The method
   final GgProcessWrapper processWrapper;
+
+  // ...........................................................................
+  void _addArgs() {
+    argParser.addFlag(
+      'exit-on-error',
+      abbr: 'x',
+      help: 'Makes command exit on first error.',
+      defaultsTo: true,
+      negatable: true,
+    );
+  }
 }
