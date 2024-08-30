@@ -48,8 +48,10 @@ void main() {
       );
       expect(messages[0], contains('⌛️ dir0'));
       expect(messages[1], contains('✅ dir0'));
-      expect(messages[2],
-          contains(' A command-line utility for Dart development.'));
+      expect(
+        messages[2],
+        contains(' A command-line utility for Dart development.'),
+      );
     });
   });
 
