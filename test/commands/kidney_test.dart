@@ -49,8 +49,8 @@ void main() {
       dRoot.path,
       '--apply',
       '--verbose',
-      'ls',
-      '-l',
+      'dart',
+      '--help',
     ];
   });
 
@@ -70,7 +70,10 @@ void main() {
           }
           expect(messages[i++], contains('✅ dir0'));
           if (apply && verbose) {
-            expect(messages[i++], contains('file0.txt'));
+            expect(
+              messages[i++],
+              contains('A command-line utility for Dart development.'),
+            );
           }
 
           if (apply) {
@@ -78,7 +81,10 @@ void main() {
           }
           expect(messages[i++], contains('✅ dir1'));
           if (apply && verbose) {
-            expect(messages[i++], contains('file1.txt'));
+            expect(
+              messages[i++],
+              contains('A command-line utility for Dart development.'),
+            );
           }
 
           if (!apply) {
@@ -95,17 +101,17 @@ void main() {
         group('- should apply cli commands to all dart packages in a folder',
             () {
           test('with --apply and --verbose', () async {
-            await kidney.run([dRoot.path, '-av', 'ls', '-la']);
+            await kidney.run([dRoot.path, '-av', 'dart', '--help']);
             checkMessages(apply: true, verbose: true);
           });
 
           test('with --apply only', () async {
-            await kidney.run([dRoot.path, '-a', 'ls', '-la']);
+            await kidney.run([dRoot.path, '-a', 'dart', '--help']);
             checkMessages(apply: true, verbose: false);
           });
 
           test('with --verbose only', () async {
-            await kidney.run([dRoot.path, '-v', 'ls', '-la']);
+            await kidney.run([dRoot.path, '-v', 'dart', '--help']);
             checkMessages(apply: false, verbose: true);
           });
         });
@@ -121,12 +127,40 @@ void main() {
           }
 
           // Run without -a -> Nothing is done
-          await kidney.run([dRoot.path, '-v', 'touch', 'file.txt']);
-          await check(didCreate: false);
+          if (Platform.isWindows) {
+            // coverage:ignore-start
+            await kidney.run([
+              dRoot.path,
+              '-v',
+              'fsutil',
+              'file',
+              'createnew',
+              'file.txt',
+              '100',
+            ]);
 
-          // Run with -a -> File is created
-          await kidney.run([dRoot.path, '-av', 'touch', 'file.txt']);
-          await check(didCreate: true);
+            await check(didCreate: false);
+
+            // Run with -a -> File is created
+            await kidney.run([
+              dRoot.path,
+              '-av',
+              'fsutil',
+              'file',
+              'createnew',
+              'file.txt',
+              '100',
+            ]);
+            await check(didCreate: true);
+            // coverage:ignore-end
+          } else {
+            await kidney.run([dRoot.path, '-v', 'touch', 'file.txt']);
+            await check(didCreate: false);
+
+            // Run with -a -> File is created
+            await kidney.run([dRoot.path, '-av', 'touch', 'file.txt']);
+            await check(didCreate: true);
+          }
         });
 
         test('- should throw, if no packages are found', () async {
@@ -135,7 +169,7 @@ void main() {
 
           late String exception;
           try {
-            await kidney.run([dRoot.path, '-av', 'ls', '-la']);
+            await kidney.run([dRoot.path, '-av', 'dart', '--help']);
           } catch (e) {
             exception = e.toString();
           }
@@ -153,7 +187,7 @@ void main() {
 
           expect(directory.path, dRoot.path);
           expect(kidneyArgs, ['--apply', '--verbose']);
-          expect(commandArgs, ['ls', '-l']);
+          expect(commandArgs, ['dart', '--help']);
           expect(verbose, true);
           expect(apply, true);
         });
@@ -161,8 +195,8 @@ void main() {
         group('- throws an exception with help', () {
           test('- when the list of command arguments is empty', () async {
             late String exception;
-            arguments.remove('ls');
-            arguments.remove('-l');
+            arguments.remove('dart');
+            arguments.remove('--help');
             try {
               await kidney.readArgs(arguments);
             } on ArgumentError catch (e) {

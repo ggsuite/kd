@@ -43,12 +43,13 @@ void main() {
   group('runKidney(args, ggLog)', () {
     test('should runKidney', () async {
       await runKidney(
-        args: [dRoot.path, '--apply', '--verbose', 'ls', '-l'],
+        args: [dRoot.path, '--apply', '--verbose', 'dart', '--help'],
         ggLog: ggLog,
       );
       expect(messages[0], contains('⌛️ dir0'));
       expect(messages[1], contains('✅ dir0'));
-      expect(messages[2], contains('file0.txt'));
+      expect(messages[2],
+          contains(' A command-line utility for Dart development.'));
     });
   });
 
@@ -56,12 +57,15 @@ void main() {
     group('should runKidney', () {
       test('- main case', () async {
         await runKidney(
-          args: [dRoot.path, '--apply', '--verbose', 'ls', '-l'],
+          args: [dRoot.path, '--apply', '--verbose', 'dart', '--help'],
           ggLog: ggLog,
         );
         expect(messages[0], contains('⌛️ dir0'));
         expect(messages[1], contains('✅ dir0'));
-        expect(messages[2], contains('file0.txt'));
+        expect(
+          messages[2],
+          contains('A command-line utility for Dart development.'),
+        );
       });
 
       group('- edge cases', () {
