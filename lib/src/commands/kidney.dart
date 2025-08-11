@@ -21,8 +21,8 @@ class Kidney {
     required this.ggLog,
     GgProcessWrapper? processWrapper,
     ProcessingList? processingList,
-  })  : _processWrapper = processWrapper ?? const GgProcessWrapper(),
-        _processingList = processingList ?? ProcessingList(ggLog: ggLog);
+  }) : _processWrapper = processWrapper ?? const GgProcessWrapper(),
+       _processingList = processingList ?? ProcessingList(ggLog: ggLog);
 
   /// The log function
   final GgLog ggLog;
@@ -75,29 +75,27 @@ class Kidney {
   );
 
   /// This help is printed, when no --apply option is given
-  final missingApplyHelp = '\n${yellow(
-    'Dry run. Please run '
-    '${blue('kidney -a ...')} to apply the changes.\n',
-  )}';
+  final missingApplyHelp =
+      '\n${yellow('Dry run. Please run '
+      '${blue('kidney -a ...')} to apply the changes.\n')}';
 
   /// This help is printed, when no --verbose option is given
-  final missingVerboseHelp = '\n${yellow(
-    'Non-verbose run. Please run '
-    '${blue('kidney -v ...')} to see more details.\n',
-  )}';
+  final missingVerboseHelp =
+      '\n${yellow('Non-verbose run. Please run '
+      '${blue('kidney -v ...')} to see more details.\n')}';
 
   // ...........................................................................
   /// Reads the arguments
   Future<
-      (
-        Directory,
-        List<String> kidneyArgs,
-        List<String> commandArgs,
-        bool verbose,
-        bool apply,
-      )> readArgs(
-    List<String> args,
-  ) async {
+    (
+      Directory,
+      List<String> kidneyArgs,
+      List<String> commandArgs,
+      bool verbose,
+      bool apply,
+    )
+  >
+  readArgs(List<String> args) async {
     args = args.where((e) => e.trim().isNotEmpty).toList();
 
     late Directory directory = Directory.current;
@@ -110,9 +108,7 @@ class Kidney {
     bool didFindDirectory = false;
     bool isKidneyArg = true;
 
-    for (final arg in args.map(
-      (e) => (e.trim()),
-    )) {
+    for (final arg in args.map((e) => (e.trim()))) {
       // Ignore the first arg if it is the kidney command
       if (!didRemoveKidneyFirstArg) {
         didRemoveKidneyFirstArg = true;
@@ -174,9 +170,7 @@ class Kidney {
       return true;
     }).toList();
     if (unknownArguments.isNotEmpty) {
-      throw ArgumentError(
-        red(unknownArguments.join(', ')),
-      );
+      throw ArgumentError(red(unknownArguments.join(', ')));
     }
 
     kidneyArgs.sort();
@@ -237,10 +231,9 @@ class Kidney {
       final stdOut = result.stdout as String;
 
       final newLine = stdOut.isNotEmpty && stdErr.isNotEmpty ? '\n' : '';
-      var msg = '$stdOut$newLine$stdErr'.replaceAll('✅', '✓').replaceAll(
-            '❌',
-            '✗',
-          );
+      var msg = '$stdOut$newLine$stdErr'
+          .replaceAll('✅', '✓')
+          .replaceAll('❌', '✗');
 
       final trimmedMessage = msg.trim();
       if (trimmedMessage.isEmpty) {
@@ -248,12 +241,14 @@ class Kidney {
       }
 
       var lines = msg.split('\n');
-      msg = lines.map((e) {
-        final indentation =
-            '${e.contains('✓') || e.contains('✗') ? '' : '  '}   ';
+      msg = lines
+          .map((e) {
+            final indentation =
+                '${e.contains('✓') || e.contains('✗') ? '' : '  '}   ';
 
-        return '$indentation$e';
-      }).join('\n');
+            return '$indentation$e';
+          })
+          .join('\n');
 
       if (msg.isNotEmpty) {
         ggLog(darkGray('\n$msg'));

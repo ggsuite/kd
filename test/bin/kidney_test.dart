@@ -73,18 +73,12 @@ void main() {
       group('- edge cases', () {
         group('should catch and print errors', () {
           test('- no arguments', () async {
-            await runKidney(
-              args: [],
-              ggLog: ggLog,
-            );
+            await runKidney(args: [], ggLog: ggLog);
             expect(messages[0], contains(kidney.commandArgumentsMissingHelp));
           });
 
           test('- unknown argument', () async {
-            await runKidney(
-              args: [dRoot.path, '--unknown'],
-              ggLog: ggLog,
-            );
+            await runKidney(args: [dRoot.path, '--unknown'], ggLog: ggLog);
             expect(messages[0], contains('Invalid argument(s):'));
             expect(messages[0], contains(kidney.commandArgumentsMissingHelp));
           });

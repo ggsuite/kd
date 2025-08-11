@@ -25,8 +25,9 @@ void main() {
   Future<void> initDartPackages() async {
     // Create a pubspec.yaml file in each directory, except dir2
     await File('${d0.path}/pubspec.yaml').writeAsString('name: dir0');
-    await File('${d1.path}/pubspec.yaml')
-        .writeAsString('name: dir1\ndependencies: \n  dir0: any');
+    await File(
+      '${d1.path}/pubspec.yaml',
+    ).writeAsString('name: dir1\ndependencies: \n  dir0: any');
 
     // Create a textfile in each directory
     await File('${d0.path}/file0.txt').writeAsString('file0');
@@ -45,13 +46,7 @@ void main() {
     await initDartPackages();
 
     kidney = Kidney(ggLog: ggLog);
-    arguments = [
-      dRoot.path,
-      '--apply',
-      '--verbose',
-      'dart',
-      '--help',
-    ];
+    arguments = [dRoot.path, '--apply', '--verbose', 'dart', '--help'];
   });
 
   tearDown(() async {
@@ -98,23 +93,25 @@ void main() {
           expect(messages, hasLength(i));
         }
 
-        group('- should apply cli commands to all dart packages in a folder',
-            () {
-          test('with --apply and --verbose', () async {
-            await kidney.run([dRoot.path, '-av', 'dart', '--help']);
-            checkMessages(apply: true, verbose: true);
-          });
+        group(
+          '- should apply cli commands to all dart packages in a folder',
+          () {
+            test('with --apply and --verbose', () async {
+              await kidney.run([dRoot.path, '-av', 'dart', '--help']);
+              checkMessages(apply: true, verbose: true);
+            });
 
-          test('with --apply only', () async {
-            await kidney.run([dRoot.path, '-a', 'dart', '--help']);
-            checkMessages(apply: true, verbose: false);
-          });
+            test('with --apply only', () async {
+              await kidney.run([dRoot.path, '-a', 'dart', '--help']);
+              checkMessages(apply: true, verbose: false);
+            });
 
-          test('with --verbose only', () async {
-            await kidney.run([dRoot.path, '-v', 'dart', '--help']);
-            checkMessages(apply: false, verbose: true);
-          });
-        });
+            test('with --verbose only', () async {
+              await kidney.run([dRoot.path, '-v', 'dart', '--help']);
+              checkMessages(apply: false, verbose: true);
+            });
+          },
+        );
       });
 
       group('- edge cases', () {
@@ -180,17 +177,19 @@ void main() {
 
     group('readArgs(args)', () {
       group('- main case', () {
-        test('- reads kidney args, command args, directory, verbose and apply',
-            () async {
-          final (directory, kidneyArgs, commandArgs, verbose, apply) =
-              await kidney.readArgs(arguments);
+        test(
+          '- reads kidney args, command args, directory, verbose and apply',
+          () async {
+            final (directory, kidneyArgs, commandArgs, verbose, apply) =
+                await kidney.readArgs(arguments);
 
-          expect(directory.path, dRoot.path);
-          expect(kidneyArgs, ['--apply', '--verbose']);
-          expect(commandArgs, ['dart', '--help']);
-          expect(verbose, true);
-          expect(apply, true);
-        });
+            expect(directory.path, dRoot.path);
+            expect(kidneyArgs, ['--apply', '--verbose']);
+            expect(commandArgs, ['dart', '--help']);
+            expect(verbose, true);
+            expect(apply, true);
+          },
+        );
 
         group('- throws an exception with help', () {
           test('- when the list of command arguments is empty', () async {
@@ -233,9 +232,7 @@ void main() {
 
         group('- returns current directory', () {
           test('if the first argument is not a folder', () async {
-            final (directory, _, _, _, _) = await kidney.readArgs(
-              ['x', 'y'],
-            );
+            final (directory, _, _, _, _) = await kidney.readArgs(['x', 'y']);
             expect(directory.path, Directory.current.path);
           });
         });
@@ -256,18 +253,23 @@ void main() {
 
         group('- interpreates - a as --apply and -v as --verbose', () {
           test('- when they are the first arguments', () async {
-            final (_, kidneyArgs, _, verbose, apply) = await kidney.readArgs(
-              ['-a', '-v', 'x', 'y'],
-            );
+            final (_, kidneyArgs, _, verbose, apply) = await kidney.readArgs([
+              '-a',
+              '-v',
+              'x',
+              'y',
+            ]);
             expect(kidneyArgs, ['--apply', '--verbose']);
             expect(verbose, true);
             expect(apply, true);
           });
 
           test('- when they are written together', () async {
-            final (_, kidneyArgs, _, verbose, apply) = await kidney.readArgs(
-              ['-av', 'x', 'y'],
-            );
+            final (_, kidneyArgs, _, verbose, apply) = await kidney.readArgs([
+              '-av',
+              'x',
+              'y',
+            ]);
             expect(kidneyArgs, ['--apply', '--verbose']);
             expect(verbose, true);
             expect(apply, true);

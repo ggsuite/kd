@@ -10,9 +10,7 @@ import 'package:kidney/kidney.dart';
 Future<void> main() async {
   const param = 'foo';
 
-  final kidney = Kidney(
-    ggLog: (msg) {},
-  );
+  final kidney = Kidney(ggLog: (msg) {});
 
   print('Executing with param $param');
   await kidney.run(['--verbose', 'ls', '-l', '-a']);
