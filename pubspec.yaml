@@ -1,6 +1,6 @@
 name: kd
 description: kd applies shell commands to multiple dart and flutter packages at once.
-version: 0.0.1
+version: 1.0.0
 repository: https://github.com/ggsuite/kd.git
 
 environment:
