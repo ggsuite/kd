@@ -6,7 +6,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:gg_args/gg_args.dart';
-import 'package:kd/kidney.dart';
+import 'package:kd/kd.dart';
 import 'package:gg_log/gg_log.dart';
 
 // .............................................................................

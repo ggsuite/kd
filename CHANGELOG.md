@@ -1,7 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## \[Unreleased\]
 
 ### Added
 
 - Initial implementation
+
+## Unreleased
+
+### Changed
+
+- commit
