@@ -20,12 +20,8 @@ YamlEditor createSamplePubSpec({required Directory dir}) {
   pubspec['environment']['sdk'] = '>=2.12.0 <3.0.0';
   pubspec['version'] = '0.0.1';
   pubspec['description'] = 'Nice description.';
-  pubspec['dependencies'] = {
-    'args': '^2.2.1',
-  };
-  pubspec['dev_dependencies'] = {
-    'test': '^1.15.3',
-  };
+  pubspec['dependencies'] = {'args': '^2.2.1'};
+  pubspec['dev_dependencies'] = {'test': '^1.15.3'};
 
   final yaml = YamlEditor('');
   yaml.update([], pubspec);

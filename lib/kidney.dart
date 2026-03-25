@@ -1,3 +1,4 @@
+#!/usr/bin/env dart
 // @license
 // Copyright (c) 2019 - 2024 Dr. Gabriel Gatzsche. All Rights Reserved.
 //

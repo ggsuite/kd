@@ -5,17 +5,16 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'package:kidney/kidney.dart';
+import '../bin/kd.dart';
 
 Future<void> main() async {
-  const param = 'foo';
-
-  final kidney = Kidney(
-    ggLog: (msg) {},
+  print('Executing');
+  await runKidney(
+    args: ['bash', '--verbose', 'ls', '-l', '-a'],
+    ggLog: (String message) {
+      print(message);
+    },
   );
-
-  print('Executing with param $param');
-  await kidney.run(['--verbose', 'ls', '-l', '-a']);
 
   print('Done.');
 }

@@ -6,17 +6,15 @@
 
 import 'dart:io';
 
-import 'package:kidney/kidney.dart';
 import 'package:test/test.dart';
 
-import '../../bin/kidney.dart';
+import '../../bin/kd.dart';
 
 void main() {
   late Directory dRoot;
   late Directory d0;
   final messages = <String>[];
   final ggLog = messages.add;
-  final kidney = Kidney(ggLog: ggLog);
 
   // ...........................................................................
   Future<void> initDartPackages() async {
@@ -43,7 +41,7 @@ void main() {
   group('runKidney(args, ggLog)', () {
     test('should runKidney', () async {
       await runKidney(
-        args: [dRoot.path, '--apply', '--verbose', 'dart', '--help'],
+        args: ['bash', dRoot.path, '--apply', '--verbose', 'dart', '--help'],
         ggLog: ggLog,
       );
       expect(messages[0], contains('⌛️ dir0'));
@@ -59,7 +57,7 @@ void main() {
     group('should runKidney', () {
       test('- main case', () async {
         await runKidney(
-          args: [dRoot.path, '--apply', '--verbose', 'dart', '--help'],
+          args: ['bash', dRoot.path, '--apply', '--verbose', 'dart', '--help'],
           ggLog: ggLog,
         );
         expect(messages[0], contains('⌛️ dir0'));
@@ -73,20 +71,16 @@ void main() {
       group('- edge cases', () {
         group('should catch and print errors', () {
           test('- no arguments', () async {
-            await runKidney(
-              args: [],
-              ggLog: ggLog,
-            );
-            expect(messages[0], contains(kidney.commandArgumentsMissingHelp));
+            await runKidney(args: [], ggLog: ggLog);
+            expect(messages[0], contains('Missing subcommand for'));
           });
 
           test('- unknown argument', () async {
-            await runKidney(
-              args: [dRoot.path, '--unknown'],
-              ggLog: ggLog,
+            await runKidney(args: [dRoot.path, '--unknown'], ggLog: ggLog);
+            expect(
+              messages[0],
+              contains('Could not find an option named --unknown'),
             );
-            expect(messages[0], contains('Invalid argument(s):'));
-            expect(messages[0], contains(kidney.commandArgumentsMissingHelp));
           });
         });
       });
