@@ -9,7 +9,6 @@ import 'package:args/command_runner.dart';
 import 'package:gg_log/gg_log.dart';
 import 'package:kidney_core/kidney_core.dart';
 
-import 'kidney_bash.dart';
 import 'kidney_one.dart';
 import 'kidney_run.dart';
 
@@ -17,7 +16,6 @@ import 'kidney_run.dart';
 class Kidney extends Command<void> {
   /// Create the root kidney command and register subcommands.
   Kidney({required this.ggLog}) {
-    addSubcommand(KidneyBash(ggLog: ggLog));
     addSubcommand(KidneyRun(ggLog: ggLog));
     addSubcommand(KidneyOne(ggLog: ggLog));
     KidneyCore(ggLog: ggLog).subcommands.values.forEach(addSubcommand);

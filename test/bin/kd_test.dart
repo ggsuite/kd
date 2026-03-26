@@ -38,36 +38,8 @@ void main() {
     await dRoot.delete(recursive: true);
   });
 
-  group('runKidney(args, ggLog)', () {
-    test('should runKidney', () async {
-      await runKidney(
-        args: ['bash', dRoot.path, '--apply', '--verbose', 'dart', '--help'],
-        ggLog: ggLog,
-      );
-      expect(messages[0], contains('⌛️ dir0'));
-      expect(messages[1], contains('✅ dir0'));
-      expect(
-        messages[2],
-        contains(' A command-line utility for Dart development.'),
-      );
-    });
-  });
-
   group('main(args)', () {
     group('should runKidney', () {
-      test('- main case', () async {
-        await runKidney(
-          args: ['bash', dRoot.path, '--apply', '--verbose', 'dart', '--help'],
-          ggLog: ggLog,
-        );
-        expect(messages[0], contains('⌛️ dir0'));
-        expect(messages[1], contains('✅ dir0'));
-        expect(
-          messages[2],
-          contains('A command-line utility for Dart development.'),
-        );
-      });
-
       group('- edge cases', () {
         group('should catch and print errors', () {
           test('- no arguments', () async {
