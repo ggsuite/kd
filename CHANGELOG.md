@@ -6,7 +6,7 @@
 
 - Initial implementation
 
-## [Unreleased]
+## [2.1.0] - 2026-03-27
 
 ### Removed
 
@@ -32,7 +32,7 @@
 
 - commit
 
-[Unreleased]: https://github.com/ggsuite/kd/compare/2.0.0...HEAD
+[2.1.0]: https://github.com/ggsuite/kd/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/ggsuite/kd/compare/1.1.0...2.0.0
 [1.1.0]: https://github.com/ggsuite/kd/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/ggsuite/kd/tag/%tag
