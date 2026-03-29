@@ -1,6 +1,7 @@
 name: kd
 description: kd applies shell commands to multiple dart and flutter packages at once.
 version: 2.1.2
+publish_to: none
 repository: https://github.com/ggsuite/kd.git
 
 environment:
@@ -21,7 +22,8 @@ dependencies:
   pub_semver: ^2.1.4
   pubspec_parse: ^1.2.3
   yaml_edit: ^2.1.1
-  kidney_core: ^2.2.4
+  kidney_core:
+    path: ../kidney_core # ^2.2.4
 dev_dependencies:
   fake_async: ^1.3.1
   gg_capture_print: ^1.0.2
